@@ -26,12 +26,7 @@ classdef Alice
     end
     
     methods (Static)
-        function [h] = hash(m)
-            %   h:string
-            %   m:string
-            
-        end
-        
+        % moved hash function to utilities class        
         function [bellStates] = generateBellStates(cbits)
             %   bellStates:[state]
             %   cbits:string
