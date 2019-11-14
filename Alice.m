@@ -43,12 +43,6 @@ classdef Alice
     end
     
     methods (Static)
-        function [h] = hash(m)
-            %   in  m:string - input cbit string
-            %   out h:string - hashed value cbit string
-            
-        end
-        
         function [bellPairs] = generateBellPairs(cbits)
             %   in  cbits:string - input cbit string for Bell-EPR pairs to
             %       generate
