@@ -20,7 +20,7 @@ import java.math.*;
              %      e=elems.pop(i)
              %      return e
              %  return list(map(f, code))
-             
+             perm = [maprec(code, pop(elems,i))];
              
          end
          
@@ -48,7 +48,7 @@ import java.math.*;
             % instantiate Java MessageDigest using MD5
             md = MessageDigest.getInstance('MD5');
             % convert m to ASCII numerical rep in base-64 radix
-            hash = md.digest(double(m));
+            h_array = md.digest(double(m));
             % convert int8 array into Java BigInteger
             bi = BigInteger(1, hash);
             % convert hash into string format
