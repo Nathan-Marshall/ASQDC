@@ -56,16 +56,10 @@ classdef Bob
             end
         end
         
-        function [h_] = hash(m_)
-            %   in  m_:string - input cbit string
-            %   out h_:string - hashed value cbit string
-            
-        end
-        
         function [m_, success] = VerifyHash(M_)
             h_ = M_.substring(1, M_.length/2);
             m_ = M_.substring(M.length/2 + 1, M.length);
-            success = (h_ == hash(m_));
+            success = (h_ == utilities.hash(m_));
         end
     end
 end

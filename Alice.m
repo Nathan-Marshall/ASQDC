@@ -18,7 +18,7 @@ classdef Alice
             %SENDMESSAGE Sends a message to Bob
             %   in  bob:Bob - Recipient
             %   in  m:string - message (cbit string)
-            M = m + hash(m);
+            M = m + utilities.hash(m);
             S = generateBellPairs(M);
             obj.C = generateBellPairs(randi([0 1], M.length, 1));
             Cba = separateCheckPairs(obj.C);
