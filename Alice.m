@@ -3,9 +3,21 @@ classdef Alice < handle
     %   Alice has powerful quantum capabilities and quantum memory.
     
     properties
+        % K1:[number] - Array of 0's and 1's used to generate a Lehmer
+        % permutation to shuffle S + Cb to send to Bob
         K1
+        
+        % K2:[number] - Array of 0's and 1's used to generate a Lehmer
+        % permutation to resore the reflected Cb received from Bob
         K2
+        
+        % checkSequence:[number] - Array of 0's and 1's representing the
+        % check state C. (Used to generate Bell-EPR pairs.)
         checkSequence
+        
+        % success:bool - Set to false when Alice sends a message, and set
+        % to true again when Alice receives the correct reflected check
+        % state from Bob
         success
     end
     
@@ -18,7 +30,7 @@ classdef Alice < handle
         function [] = sendMessage(obj, bob, m)
             %SENDMESSAGE Sends a message to Bob
             %   in  bob:Bob - Recipient
-            %   in  m:string - message (cbit string)
+            %   in  m:[number] - message cbits
             disp('Alice is sending a message to Bob.');
             obj.success = false;
             M = m + utilities.hash(m);
@@ -57,7 +69,7 @@ classdef Alice < handle
     
     methods (Static)
         function [bellPairs] = generateBellPairs(cbits)
-            %   in  cbits:string - input cbit string for Bell-EPR pairs to
+            %   in  cbits:[number] - input cbits for Bell-EPR pairs to
             %       generate
             %   out bellPairs:state - State containing all generated
             %       Bell-EPR pairs tensored together
@@ -96,7 +108,7 @@ classdef Alice < handle
         function [checkSequence_] = ReadCheckState(SC_)
             %   in  SC_:state - Contains check state C which should contain
             %       the originally generated Bell-EPR pairs.
-            %   out checkSequence_:string - bitstring obtained by performing
+            %   out checkSequence_:[number] - cbits obtained by performing
             %       Bell measurement on all pairs in C.
             
         end
@@ -106,7 +118,7 @@ classdef Alice < handle
             %       representing the message and message hash components.
             %       Cb is the sequence of 1st qbits from each of the check
             %       state Bell-EPR pairs, and Ca is the 2nd qbit from each.
-            %   in  K1:string - Key used for reordering S+Cb according to
+            %   in  K1:[number] - cbit Key used for reordering S+Cb according to
             %       the Lehmer code algorithm.
             %   out Q:state - Tensored and reordered output state. Ca stays
             %       the same but S and Cb are shuffled together according
@@ -119,7 +131,7 @@ classdef Alice < handle
             %       representing the message and message hash components.
             %       Cb is the sequence of 1st qbits from each of the check
             %       state Bell-EPR pairs, and Ca is the 2nd qbit from each.
-            %   in  K2:string - Key used for reordering Cb back to its
+            %   in  K2:[number] - cbit Key used for reordering Cb back to its
             %       original order according to the Lehmer code algorithm.
             %   out SCba__:state - Reordered output state. Ca and S stay
             %       the same but Cb is shuffled back to its original order

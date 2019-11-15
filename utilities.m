@@ -52,5 +52,16 @@ classdef utilities
             % convert hash into string format
             h = char(bi.toString(16))
         end
+        
+        function [str] = bitstring(bitArray)
+            str = "";
+            for i = 1:length(bitArray)
+                if bitArray(i) == 0
+                    str = str + "0";
+                else
+                    str = str + "1";
+                end
+            end
+        end
     end
 end
