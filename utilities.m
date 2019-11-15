@@ -1,7 +1,4 @@
-import java.security.*;
-import java.math.*;
-
-classdef assister
+classdef utilities
     methods (Static)
         function [code] = createLehmerCode(len)
             %def createLehmerCode(len):
@@ -20,8 +17,7 @@ classdef assister
             %      e=elems.pop(i)
             %      return e
             %  return list(map(f, code))
-            perm = [maprec(code, pop(elems,i))];
-            
+            perm = maprec(code, pop(elems,i));
         end
         
         function [code] = integerToCode(K, n)
@@ -45,6 +41,8 @@ classdef assister
         function [h] = hash(m)
             %   h:string
             %   m:string
+            import java.security.*;
+            import java.math.*;
             % instantiate Java MessageDigest using MD5
             md = MessageDigest.getInstance('MD5');
             % convert m to ASCII numerical rep in base-64 radix
