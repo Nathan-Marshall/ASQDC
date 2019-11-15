@@ -1,11 +1,12 @@
-classdef Alice
+classdef Alice < handle
     %ALICE The sender of the message.
     %   Alice has powerful quantum capabilities and quantum memory.
     
     properties
         K1
         K2
-        SCba
+        checkSequence
+        success
     end
     
     methods
@@ -18,16 +19,19 @@ classdef Alice
             %SENDMESSAGE Sends a message to Bob
             %   in  bob:Bob - Recipient
             %   in  m:string - message (cbit string)
+            disp('Alice is sending a message to Bob.');
+            obj.success = false;
             M = m + utilities.hash(m);
             S = generateBellPairs(M);
-            obj.C = generateBellPairs(randi([0 1], M.length, 1));
-            Cba = separateCheckPairs(obj.C);
-            obj.SCba = tensor(S, Cba);
-            Q = LehmerReorder(obj.SCba, obj.K1);
+            obj.checkSequence = randi([0 1], M.length, 1);
+            C = generateBellPairs(obj.checkSequence);
+            Cba = separateCheckPairs(C);
+            SCba = tensor(S, Cba);
+            Q = LehmerShuffleSCb(SCba, obj.K1);
             bob.receiveMessage(obj, Q);
         end
         
-        function [] = receiveReflectedCheckState(obj, bob, collapsedSCba_)
+        function [] = receiveReflectedCheckState(obj, reflectedSCba__)
             %RECEIVEREFLECTEDCHECKSTATE Receives the reflected Cb state
             %       from Bob and reorders to bring the Bell-EPR pairs back
             %       together, verifying with the original.
@@ -37,8 +41,17 @@ classdef Alice
             %       reflected by Bob. Ca was never actually sent by Alice,
             %       and S was measured by Bob using Z-basis measurement.
             
-            % TODO : Reorder reflected Cb based on K2, reassemble Bell-EPR
-            %        pairs, check validity.
+            disp('Alice is receiving the reflected check state from Bob.');
+            SCba__ = LehmerRestoreCb(reflectedSCba__, obj.K2);
+            SC_ = restoreCheckPairs(SCba__);
+            checkSequence_ = readCheckState(SC_);
+            if checkSequence_ == obj.checkSequence
+                disp('Alice has confirmed that Bob successfully received the message.');
+                obj.success = true;
+            else
+                disp('Failure: Check state reflected from Bob contained errors.');
+                obj.success = false;
+            end
         end
     end
     
@@ -73,7 +86,22 @@ classdef Alice
             end
         end
         
-        function [Q] = LehmerReorder(SCba, K1)
+        function [SC_] = restoreCheckPairs(SCba__)
+            %   in  SCba__:state - input qbits
+            %   out SC_:state - The same qbits reordered such that Ca and
+            %       Cb are paired back up into Bell-EPR pairs.
+            
+        end
+        
+        function [checkSequence_] = ReadCheckState(SC_)
+            %   in  SC_:state - Contains check state C which should contain
+            %       the originally generated Bell-EPR pairs.
+            %   out checkSequence_:string - bitstring obtained by performing
+            %       Bell measurement on all pairs in C.
+            
+        end
+        
+        function [Q] = LehmerShuffleSCb(SCba, K1)
             %   in  SCba:state - S is the tensored Bell-EPR pairs
             %       representing the message and message hash components.
             %       Cb is the sequence of 1st qbits from each of the check
@@ -83,6 +111,19 @@ classdef Alice
             %   out Q:state - Tensored and reordered output state. Ca stays
             %       the same but S and Cb are shuffled together according
             %       to K1.
+            
+        end
+        
+        function [SCba__] = LehmerRestoreCb(reflectedSCba__, K2)
+            %   in  reflectedSCba__:state - S is the tensored Bell-EPR pairs
+            %       representing the message and message hash components.
+            %       Cb is the sequence of 1st qbits from each of the check
+            %       state Bell-EPR pairs, and Ca is the 2nd qbit from each.
+            %   in  K2:string - Key used for reordering Cb back to its
+            %       original order according to the Lehmer code algorithm.
+            %   out SCba__:state - Reordered output state. Ca and S stay
+            %       the same but Cb is shuffled back to its original order
+            %       according to K2.
             
         end
     end

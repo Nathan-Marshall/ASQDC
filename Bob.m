@@ -1,11 +1,11 @@
-classdef Bob
+classdef Bob < handle
     %BOB The receiver of the message.
     %   Bob has only classic capabilities and Z-basis measurement.
     
     properties
         K1
         K2
-        m_
+        receivedMessage
     end
     
     methods
@@ -18,30 +18,43 @@ classdef Bob
             %       of the check component Ca. Ca is technically not sent
             %       by Alice and should not be touched by Bob in this
             %       simulation.
-            SCba_ = LehmerReorder(Q_, obj.K1);
+            disp('Bob is receiving a message.');
+            SCba_ = LehmerRestoreSCb(Q_, obj.K1);
             [M_, collapsedSCba_] = ReadMessage(SCba_);
             [m_, hashVerified] = VerifyHash(M_);
             if hashVerified
-                obj.m_ = m_;
+                obj.receivedMessage = m_;
+                disp('Bob successfully received the message.');
+                disp('Bob is reflecting the check state back to Alice.');
+                shuffledSCba_ = LehmerShuffleCb(collapsedSCba_, obj.K2);
+                alice.ReceiveReflectedCheckState(obj, shuffledSCba_);
             else
-                % ERROR? Restart?
+                disp('Failure: Incorrect hash on message received by Bob.');
+                obj.receivedMessage = '';
             end
-            
-            % TODO: Reorder Cb based on K2
-            
-            alice.ReceiveReflectedCheckState(obj, collapsedSCba_);
         end
     end
     
     methods (Static)
-        function [SCba_] = LehmerReorder(Q_, K1)
-            %   in  Q:state - State as received from Alice (ignore Ca). We
-            %       will shuffle the S+Cb component back to its original
+        function [SCba_] = LehmerRestoreSCb(Q_, K1)
+            %   in  Q_:state - State as received from Alice (ignore Ca).
+            %       We will shuffle the S+Cb component back to its original
             %       order.
             %   in  K1:string - Key used for reordering S+Cb according to
             %       the Lehmer code algorithm.
-            %   out Q_:state - Reordered output state. Ca stays the same
+            %   out SCba_:state - Reordered output state. Ca stays the same
             %       but S and Cb are shuffled back to their original order.
+            
+        end
+        
+        function [shuffledSCba_] = LehmerShuffleCb(SCba_, K2)
+            %   in  SCba_:state - State as received from Alice (ignore Ca).
+            %       We will shuffle the S+Cb component back to its original
+            %       order.
+            %   in  K2:string - Key used for reordering Cb according to
+            %       the Lehmer code algorithm.
+            %   out shuffledSCba_:state - Reordered output state. Ca and S
+            %       stay the same but Cb is shuffled according to K2.
             
         end
         
