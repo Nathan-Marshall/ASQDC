@@ -6,9 +6,17 @@ classdef utilities
             %   for i in range(len, 0, -1):
             %       result.append(random.randint(0,i))
             %   return result
+            code = []
             for i = len : -1 : 1
                 code = [code randi(i)];
             end
+        end
+        
+        function [e] = remove(elems, i)
+            a = elems(1:(i-1));
+            b = elems((i+1):length(elems));
+            e = [a b];
+                
         end
         
         function [perm] = codeToPermutation(elems, code)
@@ -17,7 +25,17 @@ classdef utilities
             %      e=elems.pop(i)
             %      return e
             %  return list(map(f, code))
-            perm = maprec(code, pop(elems,i));
+            
+            %x = @(f) remove(
+            %perm = []
+            %perm = maprec(code, pop(elems,i));
+            
+            e = elems(1:length(elems));
+            perm = [];
+            for i = 1 : length(code)
+                perm = [perm e(code(i))];
+                e = utilities.remove(e,code(i));
+            end
         end
         
         function [code] = integerToCode(K, n)
@@ -30,11 +48,11 @@ classdef utilities
             %   r.extend(integerToCode(K%multiplier, n-1))
             %   return r
             if n <= 1
-                code = [0];
+                code = [1];
             else
                multiplier = factorial(n-1);
-               digit = floor(K/multiplier);
-               code = [digit integerToCode(rem(K,multiplier), n-1)];
+               digit = floor(K/multiplier)+1;
+               code = [digit utilities.integerToCode(rem(K,multiplier), n-1)];
             end
         end
         
