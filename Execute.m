@@ -1,6 +1,6 @@
 disp('Executing randomization-based protocol, no attacker.');
 
-n = 80;
+n = 8;
 m = randi([0 1], n/8, 1);
 K1 = randi([0 1], n, 1);
 K2 = randi([0 1], n/2, 1);

@@ -48,9 +48,16 @@ classdef utilities
             % convert m to ASCII numerical rep in base-64 radix
             h_array = md.digest(double(m));
             % convert int8 array into Java BigInteger
-            bi = BigInteger(1, hash);
+            bi = BigInteger(1, h_array);
             % convert hash into string format
-            h = char(bi.toString(16))
+            hStr = char(bi.toString(2));
+            % convert string to bit array
+            h = zeros(128, 1);
+            for i = 1:length(hStr)
+                h(length(h) + 1 - i) = str2num(hStr(length(hStr) + 1 - i));
+            end
+            % cut down on the number of bits we use
+            h = h(1:128:length(h));
         end
         
         function [str] = bitstring(bitArray)

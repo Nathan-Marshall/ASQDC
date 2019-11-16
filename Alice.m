@@ -33,13 +33,13 @@ classdef Alice < handle
             %   in  m:[number] - message cbits
             disp('Alice is sending a message to Bob.');
             obj.success = false;
-            M = m + utilities.hash(m);
-            S = generateBellPairs(M);
-            obj.checkSequence = randi([0 1], M.length, 1);
-            C = generateBellPairs(obj.checkSequence);
-            Cba = separateCheckPairs(C);
+            M = [m; utilities.hash(m)];
+            S = Alice.generateBellPairs(M);
+            obj.checkSequence = randi([0 1], length(M), 1);
+            C = Alice.generateBellPairs(obj.checkSequence);
+            Cba = Alice.separateCheckPairs(C);
             SCba = tensor(S, Cba);
-            Q = LehmerShuffleSCb(SCba, obj.K1);
+            Q = Alice.LehmerShuffleSCb(SCba, obj.K1);
             bob.receiveMessage(obj, Q);
         end
         
@@ -54,9 +54,9 @@ classdef Alice < handle
             %       and S was measured by Bob using Z-basis measurement.
             
             disp('Alice is receiving the reflected check state from Bob.');
-            SCba__ = LehmerRestoreCb(reflectedSCba__, obj.K2);
-            SC_ = restoreCheckPairs(SCba__);
-            checkSequence_ = readCheckState(SC_);
+            SCba__ = Alice.LehmerRestoreCb(reflectedSCba__, obj.K2);
+            SC_ = Alice.restoreCheckPairs(SCba__);
+            checkSequence_ = Alice.readCheckState(SC_);
             if checkSequence_ == obj.checkSequence
                 disp('Alice has confirmed that Bob successfully received the message.');
                 obj.success = true;
@@ -73,8 +73,14 @@ classdef Alice < handle
             %       generate
             %   out bellPairs:state - State containing all generated
             %       Bell-EPR pairs tensored together
-            for i = 1:2:cbits.length
-                newPair = helper.ebit(state(cbits.substring(i, i+1)));
+            for i = 1:length(cbits)
+                if cbits(i) == 0
+                    % Phi+
+                    newPair = state('Bell3');
+                else
+                    % Psi-
+                    newPair = state('Bell1');
+                end
                 if exist('bellPairs', 'var')
                     bellPairs = tensor(bellPairs, newPair);
                 else

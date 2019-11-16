@@ -33,14 +33,14 @@ classdef Bob < handle
             %       by Alice and should not be touched by Bob in this
             %       simulation.
             disp('Bob is receiving a message.');
-            SCba_ = LehmerRestoreSCb(Q_, obj.K1);
-            [M_, collapsedSCba_] = ReadMessage(SCba_);
-            [m_, hashVerified] = VerifyHash(M_);
+            SCba_ = Bob.LehmerRestoreSCb(Q_, obj.K1);
+            [M_, collapsedSCba_] = Bob.ReadMessage(SCba_);
+            [m_, hashVerified] = Bob.VerifyHash(M_);
             if hashVerified
                 obj.receivedMessage = m_;
                 disp('Bob successfully received the message.');
                 disp('Bob is reflecting the check state back to Alice.');
-                shuffledSCba_ = LehmerShuffleCb(collapsedSCba_, obj.K2);
+                shuffledSCba_ = Bob.LehmerShuffleCb(collapsedSCba_, obj.K2);
                 alice.ReceiveReflectedCheckState(obj, shuffledSCba_);
             else
                 disp('Failure: Incorrect hash on message received by Bob.');
