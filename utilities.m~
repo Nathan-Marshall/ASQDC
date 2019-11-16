@@ -34,7 +34,7 @@ classdef utilities
             perm = [];
             for i = 1 : length(code)
                 perm = [perm e(code(i))];
-                e = utilities.remove(e,code(i));
+                e = utilities.remove(e,i);
             end
         end
         
@@ -48,11 +48,11 @@ classdef utilities
             %   r.extend(integerToCode(K%multiplier, n-1))
             %   return r
             if n <= 1
-                code = [1];
+                code = [0];
             else
                multiplier = factorial(n-1);
-               digit = floor(K/multiplier)+1;
-               code = [digit utilities.integerToCode(rem(K,multiplier), n-1)];
+               digit = floor(K/multiplier);
+               code = [digit integerToCode(rem(K,multiplier), n-1)];
             end
         end
         
