@@ -58,11 +58,15 @@ classdef utilities
             %   r = [digit]
             %   r.extend(integerToCode(K%multiplier, n-1))
             %   return r
+            
             if n <= 1
                 code = [1];
             else
                multiplier = factorial(n-1);
                digit = floor(K/multiplier)+1;
+               if (digit > n)
+                   error('K too large for n');
+               end
                code = [digit utilities.integerToCode(rem(K,multiplier), n-1)];
             end
         end

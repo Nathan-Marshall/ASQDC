@@ -57,7 +57,7 @@ classdef Alice < handle
             SCba__ = utilities.LehmerShuffleK2(reflectedSCba__, obj.K2);
             SC_ = Alice.restoreCheckPairs(SCba__);
             checkSequence_ = Alice.readCheckState(SC_);
-            if checkSequence_ == obj.checkSequence
+            if ~isempty(checkSequence_) && isequal(checkSequence_, obj.checkSequence)
                 disp('Alice has confirmed that Bob successfully received the message.');
                 obj.success = true;
             else
