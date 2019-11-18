@@ -33,14 +33,14 @@ classdef Bob < handle
             %       by Alice and should not be touched by Bob in this
             %       simulation.
             disp('Bob is receiving a message.');
-            SCba_ = Bob.LehmerRestoreSCb(Q_, obj.K1);
+            SCba_ = utilities.LehmerShuffleK1(Q_, obj.K1);
             [M_, collapsedSCba_] = Bob.readMessage(SCba_);
             [m_, hashVerified] = Bob.verifyHash(M_);
             if hashVerified
                 obj.receivedMessage = m_;
                 disp('Bob successfully received the message.');
                 disp('Bob is reflecting the check state back to Alice.');
-                shuffledSCba_ = Bob.LehmerShuffleCb(collapsedSCba_, obj.K2);
+                shuffledSCba_ = utilities.LehmerShuffleK2(collapsedSCba_, obj.K2);
                 alice.receiveReflectedCheckState(shuffledSCba_);
             else
                 disp('Failure: Incorrect hash on message received by Bob.');
@@ -50,32 +50,6 @@ classdef Bob < handle
     end
     
     methods (Static)
-        function [SCba_] = LehmerRestoreSCb(Q_, K1)
-            %   in  Q_:state - State as received from Alice (ignore Ca).
-            %       We will shuffle the S+Cb component back to its original
-            %       order.
-            %   in  K1:[number] - cbit Key used for reordering S+Cb according to
-            %       the Lehmer code algorithm.
-            %   out SCba_:state - Reordered output state. Ca stays the same
-            %       but S and Cb are shuffled back to their original order.
-            
-            % TODO: implement shuffling rather than returning input
-            SCba_ = Q_;
-        end
-        
-        function [shuffledSCba_] = LehmerShuffleCb(SCba_, K2)
-            %   in  SCba_:state - State as received from Alice (ignore Ca).
-            %       We will shuffle the S+Cb component back to its original
-            %       order.
-            %   in  K2:[number] - cbit Key used for reordering Cb according to
-            %       the Lehmer code algorithm.
-            %   out shuffledSCba_:state - Reordered output state. Ca and S
-            %       stay the same but Cb is shuffled according to K2.
-            
-            % TODO: implement shuffling rather than returning input
-            shuffledSCba_ = SCba_;
-        end
-        
         function [M_, collapsedSCba_] = readMessage(SCba_)
             n = SCba_.subsystems();
             M_ = zeros(n/4, 1);

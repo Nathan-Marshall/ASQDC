@@ -39,7 +39,7 @@ classdef Alice < handle
             C = Alice.generateBellPairs(obj.checkSequence);
             Cba = Alice.separateCheckPairs(C);
             SCba = tensor(S, Cba);
-            Q = Alice.LehmerShuffleSCb(SCba, obj.K1);
+            Q = utilities.LehmerShuffleK1(SCba, obj.K1);
             bob.receiveMessage(obj, Q);
         end
         
@@ -54,7 +54,7 @@ classdef Alice < handle
             %       and S was measured by Bob using Z-basis measurement.
             
             disp('Alice is receiving the reflected check state from Bob.');
-            SCba__ = Alice.LehmerRestoreCb(reflectedSCba__, obj.K2);
+            SCba__ = utilities.LehmerShuffleK2(reflectedSCba__, obj.K2);
             SC_ = Alice.restoreCheckPairs(SCba__);
             checkSequence_ = Alice.readCheckState(SC_);
             if checkSequence_ == obj.checkSequence
@@ -165,36 +165,6 @@ classdef Alice < handle
                     return;
                 end
             end
-        end
-        
-        function [Q] = LehmerShuffleSCb(SCba, K1)
-            %   in  SCba:state - S is the tensored Bell-EPR pairs
-            %       representing the message and message hash components.
-            %       Cb is the sequence of 1st qbits from each of the check
-            %       state Bell-EPR pairs, and Ca is the 2nd qbit from each.
-            %   in  K1:[number] - cbit Key used for reordering S+Cb according to
-            %       the Lehmer code algorithm.
-            %   out Q:state - Tensored and reordered output state. Ca stays
-            %       the same but S and Cb are shuffled together according
-            %       to K1.
-            
-            % TODO: implement shuffling rather than returning input
-            Q = SCba;
-        end
-        
-        function [SCba__] = LehmerRestoreCb(reflectedSCba__, K2)
-            %   in  reflectedSCba__:state - S is the tensored Bell-EPR pairs
-            %       representing the message and message hash components.
-            %       Cb is the sequence of 1st qbits from each of the check
-            %       state Bell-EPR pairs, and Ca is the 2nd qbit from each.
-            %   in  K2:[number] - cbit Key used for reordering Cb back to its
-            %       original order according to the Lehmer code algorithm.
-            %   out SCba__:state - Reordered output state. Ca and S stay
-            %       the same but Cb is shuffled back to its original order
-            %       according to K2.
-            
-            % TODO: implement shuffling rather than returning input
-            SCba__ = reflectedSCba__;
         end
     end
 end
