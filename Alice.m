@@ -95,12 +95,13 @@ classdef Alice < handle
             %       first qbit from every pair is pushed to the end. The
             %       first n/2 qbits are considered Cb and the last n/2
             %       qbits are considered Ca.
+            
             n = C.subsystems();
             Cba = C;
             for i = 1:n/2
                 % Move the first qbit from every pair to the end
-                swapToEnd = helper.BSWAP(i, n, n);
-                Cba = u_propagate(Cba, swapToEnd);
+                iToLast = helper.BSWAP(i, n, n);
+                Cba = u_propagate(Cba, iToLast);
             end
         end
         
@@ -109,14 +110,61 @@ classdef Alice < handle
             %   out SC_:state - The same qbits reordered such that Ca and
             %       Cb are paired back up into Bell-EPR pairs.
             
+            % ignore S and start at Cb
+            start = SCba__.subsystems() / 2 + 1;
+            % number of qbits in Cba
+            n = SCba__.subsystems() / 2;
+            
+            SC_ = SCba__;
+            for i = start + n/2 - 1 : -1 : start
+                % Move the first qbit from every pair to the end
+                lastToI = helper.BSWAP(start + n - 1, i, start + n - 1);
+                SC_ = u_propagate(SC_, lastToI);
+            end
         end
         
-        function [checkSequence_] = ReadCheckState(SC_)
+        function [checkSequence_] = readCheckState(SC_)
             %   in  SC_:state - Contains check state C which should contain
             %       the originally generated Bell-EPR pairs.
             %   out checkSequence_:[number] - cbits obtained by performing
             %       Bell measurement on all pairs in C.
             
+            % start with I gates for all qbits in S
+            prep = helper.power(helper.I, SC_.subsystems() / 2);
+            % ignore S and start at Cb
+            start = SC_.subsystems() / 2 + 1;
+            % number of qbits in Cba
+            n = SC_.subsystems() / 2;
+            
+            % add Bell-measurement preparation gates for every pair of qbits
+            for i = start : 2 : start + n - 1
+                prep = tensor(prep, tensor(helper.H, helper.I) * helper.ACNOT);
+            end
+            preppedSC_ = u_propagate(SC_, prep);
+            
+            % measure each qbit in C
+            checkSequence_ = zeros(n/2, 1);
+            
+            for i = start : 2 : start + n - 1
+                [~, b1, preppedSC_] = measure(preppedSC_, i);
+                b1 = b1 - 1;
+                [~, b2, preppedSC_] = measure(preppedSC_, i+1);
+                b2 = b2 - 1;
+                
+                if b1 == 0 && b2 == 0
+                    % if the bits are the same, Alice sent a Phi+
+                    % which represents 0
+                    checkSequence_((i - start)/2 + 1) = 0;
+                elseif b1 == 1 && b2 == 1
+                    % if the bits are the different, Alice sent a Psi-
+                    % which represents 1
+                    checkSequence_((i - start)/2 + 1) = 1;
+                else
+                    disp('Error: unexpected Bell-measurement reading');
+                    checkSequence_ = [];
+                    return;
+                end
+            end
         end
         
         function [Q] = LehmerShuffleSCb(SCba, K1)
@@ -130,6 +178,8 @@ classdef Alice < handle
             %       the same but S and Cb are shuffled together according
             %       to K1.
             
+            % TODO: implement shuffling rather than returning input
+            Q = SCba;
         end
         
         function [SCba__] = LehmerRestoreCb(reflectedSCba__, K2)
@@ -143,6 +193,8 @@ classdef Alice < handle
             %       the same but Cb is shuffled back to its original order
             %       according to K2.
             
+            % TODO: implement shuffling rather than returning input
+            SCba__ = reflectedSCba__;
         end
     end
 end

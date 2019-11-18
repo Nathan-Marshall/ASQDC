@@ -34,14 +34,14 @@ classdef Bob < handle
             %       simulation.
             disp('Bob is receiving a message.');
             SCba_ = Bob.LehmerRestoreSCb(Q_, obj.K1);
-            [M_, collapsedSCba_] = Bob.ReadMessage(SCba_);
-            [m_, hashVerified] = Bob.VerifyHash(M_);
+            [M_, collapsedSCba_] = Bob.readMessage(SCba_);
+            [m_, hashVerified] = Bob.verifyHash(M_);
             if hashVerified
                 obj.receivedMessage = m_;
                 disp('Bob successfully received the message.');
                 disp('Bob is reflecting the check state back to Alice.');
                 shuffledSCba_ = Bob.LehmerShuffleCb(collapsedSCba_, obj.K2);
-                alice.ReceiveReflectedCheckState(obj, shuffledSCba_);
+                alice.receiveReflectedCheckState(shuffledSCba_);
             else
                 disp('Failure: Incorrect hash on message received by Bob.');
                 obj.receivedMessage = '';
@@ -59,6 +59,8 @@ classdef Bob < handle
             %   out SCba_:state - Reordered output state. Ca stays the same
             %       but S and Cb are shuffled back to their original order.
             
+            % TODO: implement shuffling rather than returning input
+            SCba_ = Q_;
         end
         
         function [shuffledSCba_] = LehmerShuffleCb(SCba_, K2)
@@ -70,22 +72,35 @@ classdef Bob < handle
             %   out shuffledSCba_:state - Reordered output state. Ca and S
             %       stay the same but Cb is shuffled according to K2.
             
+            % TODO: implement shuffling rather than returning input
+            shuffledSCba_ = SCba_;
         end
         
-        function [M_, collapsedSCba_] = ReadMessage(SCba_)
-            M_ = "";
+        function [M_, collapsedSCba_] = readMessage(SCba_)
             n = SCba_.subsystems();
+            M_ = zeros(n/4, 1);
             collapsedSCba_ = SCba_;
-            for i = 1:n/2
-                [~, b, collapsedSCba_] = measure(collapsedSCba_, i);
-                b = b - 1;
-                M_ = M_ + num2str(b, '%1d');
+            for i = 1:2:n/2
+                [~, b1, collapsedSCba_] = measure(collapsedSCba_, i);
+                b1 = b1 - 1;
+                [~, b2, collapsedSCba_] = measure(collapsedSCba_, i+1);
+                b2 = b2 - 1;
+                
+                if b1 == b2
+                    % if the bits are the same, Alice sent a Phi+
+                    % which represents 0
+                    M_((i-1)/2 + 1) = 0;
+                else
+                    % if the bits are the different, Alice sent a Psi-
+                    % which represents 1
+                    M_((i-1)/2 + 1) = 1;
+                end
             end
         end
         
-        function [m_, success] = VerifyHash(M_)
-            h_ = M_.substring(1, M_.length/2);
-            m_ = M_.substring(M.length/2 + 1, M.length);
+        function [m_, success] = verifyHash(M_)
+            m_ = M_(1 : length(M_)/2);
+            h_ = M_(length(M_)/2 + 1 : length(M_));
             success = (h_ == utilities.hash(m_));
         end
     end

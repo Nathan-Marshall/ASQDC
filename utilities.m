@@ -75,7 +75,8 @@ classdef utilities
                 h(length(h) + 1 - i) = str2num(hStr(length(hStr) + 1 - i));
             end
             % cut down on the number of bits we use
-            h = h(1:128:length(h));
+            numBits = 2;
+            h = h(1:128/numBits:length(h));
         end
         
         function [str] = bitstring(bitArray)
