@@ -6,7 +6,7 @@ classdef utilities
             %   for i in range(len, 0, -1):
             %       result.append(random.randint(0,i))
             %   return result
-            code = []
+            code = [];
             for i = len : -1 : 1
                 code = [code randi(i)];
             end
@@ -65,7 +65,7 @@ classdef utilities
                multiplier = factorial(n-1);
                digit = floor(K/multiplier)+1;
                if (digit > n)
-                   error('K too large for n');
+                   error('K >= n!');
                end
                code = [digit utilities.integerToCode(rem(K,multiplier), n-1)];
             end
@@ -94,9 +94,11 @@ classdef utilities
             h = h(1:128/numBits:length(h));
         end
         
-        function [outState] = LehmerShuffle(inState, key, first, last)
+        function [outState] = LehmerShuffle(inState, code, first, last)
             n = inState.subsystems();
-            code = utilities.integerToCode(utilities.bitArrayToNumber(key), last - first + 1);
+            if length(code) ~= last - first + 1
+                error('Key length does not match number of elements');
+            end
             
             outState = inState;
             for i = 1 : last - first + 1
