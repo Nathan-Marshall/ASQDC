@@ -111,26 +111,39 @@ classdef utilities
         end
         
         function [h] = hash(m)
-            %   h:string
-            %   m:string
-            import java.security.*;
-            import java.math.*;
-            % instantiate Java MessageDigest using MD5
-            md = MessageDigest.getInstance('MD5');
-            % convert m to ASCII numerical rep in base-64 radix
-            h_array = md.digest(double(m));
-            % convert int8 array into Java BigInteger
-            bi = BigInteger(1, h_array);
-            % convert hash into string format
-            hStr = char(bi.toString(2));
-            % convert string to bit array
-            h = zeros(128, 1);
-            for i = 1:length(hStr)
-                h(length(h) + 1 - i) = str2num(hStr(length(hStr) + 1 - i));
+            %%%   h:string
+            %%%   m:string
+            %import java.security.*;
+            %import java.math.*;
+            %%% instantiate Java MessageDigest using MD5
+            %md = MessageDigest.getInstance('MD5');
+            %%% convert m to ASCII numerical rep in base-64 radix
+            %h_array = md.digest(double(m));
+            %%% convert int8 array into Java BigInteger
+            %bi = BigInteger(1, h_array);
+            %%% convert hash into string format
+            %hStr = char(bi.toString(2));
+            %%% convert string to bit array
+            %h = zeros(128, 1);
+            %for i = 1:length(hStr)
+            %    h(length(h) + 1 - i) = str2num(hStr(length(hStr) + 1 - i));
+            %end
+            
+            
+            % Ignore the good hash function above and use this poor one
+            % because we can only afford a few bits. This not very secure
+            % but guaranteed to be collision free. In practice, we would
+            % use the above function, but we cannot simulate the protocol
+            % with that many qubits on an ordinary computer (not enough
+            % RAM).
+            h = m;
+            for i = 1:length(h)
+                if h(i) == 0
+                    h(i) = 1;
+                else
+                    h(i) = 0;
+                end
             end
-            % cut down on the number of bits we use
-            numBits = 2;
-            h = h(1:128/numBits:length(h));
         end
         
         function [outState] = LehmerShuffle(inState, code, first, last)

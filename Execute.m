@@ -11,10 +11,10 @@ K1Decode = utilities.invertLehmerCode(K1Encode);
 K2Encode = utilities.createLehmerCode(n*1/4);
 K2Decode = utilities.invertLehmerCode(K2Encode);
 
-fprintf(['K1Encode: ' repmat('%d ', 1, length(K1)) '\n'], K1Encode);
-fprintf(['K1Decode: ' repmat('%d ', 1, length(K1)) '\n'], K1Decode);
-fprintf(['K2Encode: ' repmat('%d ', 1, length(K2)) '\n'], K2Encode);
-fprintf(['K2Decode: ' repmat('%d ', 1, length(K2)) '\n'], K2Decode);
+fprintf(['K1Encode: ' repmat('%d ', 1, length(K1Encode)) '\n'], K1Encode);
+fprintf(['K1Decode: ' repmat('%d ', 1, length(K1Decode)) '\n'], K1Decode);
+fprintf(['K2Encode: ' repmat('%d ', 1, length(K2Encode)) '\n'], K2Encode);
+fprintf(['K2Decode: ' repmat('%d ', 1, length(K2Decode)) '\n'], K2Decode);
 fprintf('Message: %s\n', utilities.bitstring(m));
 
 alice = Alice(K1Encode, K2Decode);
