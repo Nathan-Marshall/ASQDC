@@ -30,3 +30,7 @@ if alice.success
 else
     disp('Protocol failed.');
 end
+
+% impersonation - Eve sends message to Bob
+
+% interceptResend - 
