@@ -19,6 +19,7 @@ fprintf('Message: %s\n', utilities.bitstring(m));
 
 alice = Alice(K1Encode, K2Decode);
 bob = Bob(K1Decode, K2Encode);
+eve = Eve(n);
 
 alice.sendMessage(bob, m);
 if alice.success

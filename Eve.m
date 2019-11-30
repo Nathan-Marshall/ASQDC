@@ -3,34 +3,42 @@ classdef Eve
     %   Detailed explanation goes here
     
     properties
+        n
         % NOTE: n bit key according to protocol description, but we'll just store
         % a Lehmer code because it makes way more sense
-        eK1 = utilities.createLehmerCode(n*3/4);
+        eK1
         % NOTE: n/2 bit key according to protocol description, but we'll just store
         % a Lehmer code because it makes way more sense
-        eK2 = utilities.createLehmerCode(n*1/4);
-        eAlice = Alice(eK1, eK2);
-        eBob = Bob(eK1, eK2);
+        eK2
+        eAlice
+        eBob
     end
     
     methods
-        function obj = Eve(inputArg1,inputArg2)
-            %EVE Construct an instance of this class
-            %   Detailed explanation goes here
-            obj.Property1 = inputArg1 + inputArg2;
+        function obj = Eve(n)
+            obj.n = n;
+            % NOTE: n bit key according to protocol description, but we'll just store
+            % a Lehmer code because it makes way more sense
+            obj.eK1 = utilities.createLehmerCode(n*3/4);
+            % NOTE: n/2 bit key according to protocol description, but we'll just store
+            % a Lehmer code because it makes way more sense
+            obj.eK2 = utilities.createLehmerCode(n*1/4);
+            obj.eAlice = Alice(obj.eK1, obj.eK2);
+            obj.eBob = Bob(obj.eK1, obj.eK2);
         end
         
-        function outputArg = method1(obj,inputArg)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
-            outputArg = obj.Property1 + inputArg;
-        end
-        
-        function [] = impersonation(obj, bob, m)
+        function [] = impersonateAlice(obj, bob, m)
             %IMPERSONATION Sends a message to Bob using random keys
             %   in  bob:Bob - Recipient
             %   in  m:[number] - message cbits
             obj.eAlice.sendMessage(obj, bob, m);
+        end
+        
+        function [] = impersonateBob(obj, bob, m)
+            %IMPERSONATION Sends a message to Bob using random keys
+            %   in  bob:Bob - Recipient
+            %   in  m:[number] - message cbits
+            alice.sendMessage(obj, obj.eBob, m);
         end
         
         function [] = interceptResend(obj, alice, Q_, bob, m)
@@ -65,9 +73,9 @@ classdef Eve
             alice.success = false;
             M = [m; utilities.hash(m)];
             S = Alice.generateBellPairs(M);
-            % Eve modifies a single Bell pair (corresponding to a cbit)
-            % here
-            
+            % Eve modifies a single qubit
+            A_ind = randi(length(S));
+            length(S)
             alice.checkSequence = randi([0 1], length(M), 1);
             C = Alice.generateBellPairs(obj.checkSequence);
             Cba = Alice.separateCheckPairs(C);
