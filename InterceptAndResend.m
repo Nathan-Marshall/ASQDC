@@ -1,4 +1,4 @@
-disp('Executing randomization-based protocol, no attacker.');
+disp('Executing intercept and resend attack randomization-based protocol.');
 
 n = 16;
 m = randi([0 1], n/8, 1);
@@ -19,8 +19,9 @@ fprintf('Message: %s\n', utilities.bitstring(m));
 
 alice = Alice(K1Encode, K2Decode);
 bob = Bob(K1Decode, K2Encode);
+eve = Eve(n);
 
-alice.sendMessage(bob, m);
+eve.interceptResend(alice, bob, m);
 if alice.success
     disp('Protocol succeeded.');
     disp('Message sent:');

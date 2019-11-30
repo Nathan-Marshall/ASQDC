@@ -1,4 +1,4 @@
-disp('Executing randomization-based protocol, no attacker.');
+disp('Executing impersonation of Alice attack on randomization-based protocol.');
 
 n = 16;
 m = randi([0 1], n/8, 1);
@@ -17,11 +17,11 @@ fprintf(['K2Encode: ' repmat('%d ', 1, length(K2Encode)) '\n'], K2Encode);
 fprintf(['K2Decode: ' repmat('%d ', 1, length(K2Decode)) '\n'], K2Decode);
 fprintf('Message: %s\n', utilities.bitstring(m));
 
-alice = Alice(K1Encode, K2Decode);
+eve = Eve(n);
 bob = Bob(K1Decode, K2Encode);
 
-alice.sendMessage(bob, m);
-if alice.success
+eve.impersonateAlice(bob, m);
+if eve.eAlice.success
     disp('Protocol succeeded.');
     disp('Message sent:');
     disp(m);
