@@ -104,8 +104,12 @@ classdef Eve
             SCba = tensor(S, Cba);
             Q = utilities.LehmerShuffleK1(SCba, alice.K1);
             % Eve modifies a single qubit
-            A_ind = randi(obj.n);
-            A = tensor(helper.power(helper.I, A_ind-1), helper.X, helper.power(helper.I, obj.n-A_ind));
+            A_ind = randi(obj.n*3/4);
+            if A_ind == 1
+                A = tensor(helper.X, helper.power(helper.I, obj.n-A_ind));
+            else
+                A = tensor(helper.power(helper.I, A_ind-1), helper.X, helper.power(helper.I, obj.n-A_ind));
+            end
             Aq = u_propagate(Q,A);
             bob.receiveMessage(alice, Aq);
         end
