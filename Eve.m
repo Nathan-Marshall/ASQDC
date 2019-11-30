@@ -41,7 +41,7 @@ classdef Eve
             alice.sendMessage(obj, obj.eBob, m);
         end
         
-        function [] = interceptResend(obj, alice, Q_, bob, m)
+        function [] = interceptResend(obj, alice, bob, m)
             % INTERCEPTRESEND Receives a message from Alice, measures it,
             % and resends it to Bob
             %   in  alice:Alice - Sender
@@ -57,7 +57,7 @@ classdef Eve
             obj.eAlice.sendMessage(bob, m);
         end
         
-        function [] = modification(obj, alice, Q_, bob, m)
+        function [] = modification(obj, alice, bob, m)
             % MODIFICATION Receives a message from Alice, changes it,
             % and resends it to Bob
             %   in  alice:Alice - Sender
@@ -73,15 +73,16 @@ classdef Eve
             alice.success = false;
             M = [m; utilities.hash(m)];
             S = Alice.generateBellPairs(M);
-            % Eve modifies a single qubit
-            A_ind = randi(length(S));
-            length(S)
             alice.checkSequence = randi([0 1], length(M), 1);
-            C = Alice.generateBellPairs(obj.checkSequence);
+            C = Alice.generateBellPairs(alice.checkSequence);
             Cba = Alice.separateCheckPairs(C);
             SCba = tensor(S, Cba);
-            Q = utilities.LehmerShuffleK1(SCba, obj.K1);
-            bob.receiveMessage(obj, Q);
+            Q = utilities.LehmerShuffleK1(SCba, alice.K1);
+            % Eve modifies a single qubit
+            A_ind = randi(obj.n);
+            A = tensor(helper.power(helper.I, A_ind-1), helper.X, helper.power(helper.I, obj.n-A_ind));
+            Aq = u_propagate(Q,A);
+            bob.receiveMessage(alice, Aq);
         end
     end
 end
