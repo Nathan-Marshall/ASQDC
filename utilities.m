@@ -19,7 +19,7 @@ classdef utilities
                 
         end
         
-        function [perm] = codeToPermutation(elems, code)
+        function [perm] = permuteFromCode(elems, code)
             %def codeToPermutation(elems, code):
             %  def f(i):
             %      e=elems.pop(i)
@@ -36,6 +36,45 @@ classdef utilities
                 perm = [perm e(code(i))];
                 e = utilities.remove(e,code(i));
             end
+        end
+        
+        function [perm] = codeToPermutation(code)
+            perm = code;
+            n = length(perm);
+            for i = n:-1:1
+                for j = i+1:n
+                    if perm(j) >= perm(i)
+                        perm(j) = perm(j) + 1;
+                    end
+                end
+            end
+        end
+        
+        function [inv] = invertPermutation(perm)
+            n = length(perm);
+            inv = zeros(n, 1);
+            for i = 1:n
+                x = perm(i);
+                inv(x) = i;
+            end
+        end
+        
+        function [code] = permutationToCode(perm)
+            code = perm;
+            n = length(code);
+            for i = 1:n
+                for j = i+1:n
+                    if code(j) > code(i)
+                        code(j) = code(j) - 1;
+                    end
+                end
+            end
+        end
+        
+        function [invCode] = invertLehmerCode(code)
+            perm = utilities.codeToPermutation(code);
+            invPerm = utilities.invertPermutation(perm);
+            invCode = utilities.permutationToCode(invPerm);
         end
         
         function [num] = bitArrayToNumber(bits)

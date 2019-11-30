@@ -4,17 +4,21 @@ n = 16;
 m = randi([0 1], n/8, 1);
 % NOTE: n bit key according to protocol description, but we'll just store
 % a Lehmer code because it makes way more sense
-K1 = utilities.createLehmerCode(n*3/4);
+K1Encode = utilities.createLehmerCode(n*3/4);
+K1Decode = utilities.invertLehmerCode(K1Encode);
 % NOTE: n/2 bit key according to protocol description, but we'll just store
 % a Lehmer code because it makes way more sense
-K2 = utilities.createLehmerCode(n*1/4);
+K2Encode = utilities.createLehmerCode(n*1/4);
+K2Decode = utilities.invertLehmerCode(K2Encode);
 
-fprintf(['K1: ' repmat('%d ', 1, length(K1)) '\n'], K1);
-fprintf(['K2: ' repmat('%d ', 1, length(K2)) '\n'], K2);
+fprintf(['K1Encode: ' repmat('%d ', 1, length(K1)) '\n'], K1Encode);
+fprintf(['K1Decode: ' repmat('%d ', 1, length(K1)) '\n'], K1Decode);
+fprintf(['K2Encode: ' repmat('%d ', 1, length(K2)) '\n'], K2Encode);
+fprintf(['K2Decode: ' repmat('%d ', 1, length(K2)) '\n'], K2Decode);
 fprintf('Message: %s\n', utilities.bitstring(m));
 
-alice = Alice(K1, K2);
-bob = Bob(K1, K2);
+alice = Alice(K1Encode, K2Decode);
+bob = Bob(K1Decode, K2Encode);
 
 alice.sendMessage(bob, m);
 if alice.success
