@@ -19,7 +19,6 @@ fprintf('Message: %s\n', utilities.bitstring(m));
 
 alice = Alice(K1Encode, K2Decode);
 bob = Bob(K1Decode, K2Encode);
-eve = Eve(n);
 
 alice.sendMessage(bob, m);
 if alice.success
@@ -30,4 +29,8 @@ if alice.success
     disp(bob.receivedMessage);
 else
     disp('Protocol failed.');
+    disp('Message sent:');
+    disp(m);
+    disp('Message received by Bob:');
+    disp(bob.receivedMessage);
 end

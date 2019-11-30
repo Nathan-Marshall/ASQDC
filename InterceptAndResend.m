@@ -30,4 +30,8 @@ if alice.success
     disp(bob.receivedMessage);
 else
     disp('Protocol failed.');
+    disp('Message sent:');
+    disp(m);
+    disp('Message received by Bob:');
+    disp(bob.receivedMessage);
 end

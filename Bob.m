@@ -36,15 +36,14 @@ classdef Bob < handle
             SCba_ = utilities.LehmerShuffleK1(Q_, obj.K1);
             [M_, collapsedSCba_] = Bob.readMessage(SCba_);
             [m_, hashVerified] = Bob.verifyHash(M_);
+            obj.receivedMessage = m_;
             if hashVerified
-                obj.receivedMessage = m_;
                 disp('Bob successfully received the message.');
                 disp('Bob is reflecting the check state back to Alice.');
                 shuffledSCba_ = utilities.LehmerShuffleK2(collapsedSCba_, obj.K2);
                 alice.receiveReflectedCheckState(shuffledSCba_);
             else
                 disp('Failure: Incorrect hash on message received by Bob.');
-                obj.receivedMessage = '';
             end
         end
     end

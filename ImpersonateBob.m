@@ -20,7 +20,7 @@ fprintf('Message: %s\n', utilities.bitstring(m));
 alice = Alice(K1Encode, K2Decode);
 eve = Eve(n);
 
-alice.sendMessage(eve, m);
+eve.impersonateBob(alice, m);
 if alice.success
     disp('Protocol succeeded.');
     disp('Message sent:');
@@ -29,4 +29,8 @@ if alice.success
     disp(bob.receivedMessage);
 else
     disp('Protocol failed.');
+    disp('Message sent:');
+    disp(m);
+    disp('Message received by Bob:');
+    disp(bob.receivedMessage);
 end
