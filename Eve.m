@@ -38,7 +38,8 @@ classdef Eve
             %IMPERSONATION Sends a message to Bob using random keys
             %   in  bob:Bob - Recipient
             %   in  m:[number] - message cbits
-            disp('Alice is sending a message to "Bob" (Eve).');
+            
+            %disp('Alice is sending a message to "Bob" (Eve).');
             alice.success = false;
             M = [m; utilities.hash(m)];
             S = Alice.generateBellPairs(M);
@@ -50,17 +51,17 @@ classdef Eve
             
             Q_ = Q;
             
-            disp('"Bob" (Eve) is receiving a message.');
+            %disp('"Bob" (Eve) is receiving a message.');
             SCba_ = utilities.LehmerShuffleK1(Q_, obj.eK1);
             [M_, collapsedSCba_] = Bob.readMessage(SCba_);
             [m_, hashVerified] = Bob.verifyHash(M_);
             obj.eBob.receivedMessage = m_;
             if hashVerified
-                disp('Eve successfully received the message.');
-                disp('Eve is reflecting the check state back to Alice.');
+                %disp('Eve successfully received the message.');
+                %disp('Eve is reflecting the check state back to Alice.');
             else
-                disp('Failure: Incorrect hash on message received by Eve.');
-                disp('Eve is reflecting the check state back to Alice anyway.');
+                %disp('Failure: Incorrect hash on message received by Eve.');
+                %disp('Eve is reflecting the check state back to Alice anyway.');
             end
             shuffledSCba_ = utilities.LehmerShuffleK2(collapsedSCba_, obj.eK2);
             alice.receiveReflectedCheckState(shuffledSCba_);
@@ -94,7 +95,8 @@ classdef Eve
             %       simulation.
             %   in  bob:Bob - Recipient
             %   in  m:[number] - message cbits
-            disp('Alice is sending a message to Bob.');
+            
+            %disp('Alice is sending a message to Bob.');
             alice.success = false;
             M = [m; utilities.hash(m)];
             S = Alice.generateBellPairs(M);

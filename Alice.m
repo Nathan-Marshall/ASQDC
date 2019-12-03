@@ -31,7 +31,8 @@ classdef Alice < handle
             %SENDMESSAGE Sends a message to Bob
             %   in  bob:Bob - Recipient
             %   in  m:[number] - message cbits
-            disp('Alice is sending a message to Bob.');
+            
+            %disp('Alice is sending a message to Bob.');
             obj.success = false;
             M = [m; utilities.hash(m)];
             S = Alice.generateBellPairs(M);
@@ -53,15 +54,15 @@ classdef Alice < handle
             %       reflected by Bob. Ca was never actually sent by Alice,
             %       and S was measured by Bob using Z-basis measurement.
             
-            disp('Alice is receiving the reflected check state from Bob.');
+            %disp('Alice is receiving the reflected check state from Bob.');
             SCba__ = utilities.LehmerShuffleK2(reflectedSCba__, obj.K2);
             SC_ = Alice.restoreCheckPairs(SCba__);
             checkSequence_ = Alice.readCheckState(SC_);
             if ~isempty(checkSequence_) && isequal(checkSequence_, obj.checkSequence)
-                disp('Alice has confirmed that Bob successfully received the message.');
+                %disp('Alice has confirmed that Bob successfully received the message.');
                 obj.success = true;
             else
-                disp('Failure: Check state reflected from Bob contained errors.');
+                %disp('Failure: Check state reflected from Bob contained errors.');
                 obj.success = false;
             end
         end
@@ -160,7 +161,7 @@ classdef Alice < handle
                     % which represents 1
                     checkSequence_((i - start)/2 + 1) = 1;
                 else
-                    disp('Error: unexpected Bell-measurement reading');
+                    %disp('Error: unexpected Bell-measurement reading');
                     checkSequence_ = [];
                     return;
                 end
