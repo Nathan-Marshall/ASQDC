@@ -15,6 +15,10 @@ classdef Bob < handle
         % message sent from Alice. If the calculated hash is invalid, the
         % protocol is aborted and this value is cleared.
         receivedMessage
+        
+        % hashVerified:[boolean] - Set to true if the hash was valid on the
+        % last message, false otherwise
+        hashVerified
     end
     
     methods
@@ -36,9 +40,9 @@ classdef Bob < handle
             %disp('Bob is receiving a message.');
             SCba_ = utilities.LehmerShuffleK1(Q_, obj.K1);
             [M_, collapsedSCba_] = Bob.readMessage(SCba_);
-            [m_, hashVerified] = Bob.verifyHash(M_);
+            [m_, obj.hashVerified] = Bob.verifyHash(M_);
             obj.receivedMessage = m_;
-            if hashVerified
+            if obj.hashVerified
                 %disp('Bob successfully received the message.');
                 %disp('Bob is reflecting the check state back to Alice.');
                 shuffledSCba_ = utilities.LehmerShuffleK2(collapsedSCba_, obj.K2);
@@ -75,7 +79,7 @@ classdef Bob < handle
         function [m_, success] = verifyHash(M_)
             m_ = M_(1 : length(M_)/2);
             h_ = M_(length(M_)/2 + 1 : length(M_));
-            success = (h_ == utilities.hash(m_));
+            success = isequal(h_, utilities.hash(m_));
         end
     end
 end

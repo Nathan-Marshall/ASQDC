@@ -54,9 +54,9 @@ classdef Eve
             %disp('"Bob" (Eve) is receiving a message.');
             SCba_ = utilities.LehmerShuffleK1(Q_, obj.eK1);
             [M_, collapsedSCba_] = Bob.readMessage(SCba_);
-            [m_, hashVerified] = Bob.verifyHash(M_);
+            [m_, obj.eBob.hashVerified] = Bob.verifyHash(M_);
             obj.eBob.receivedMessage = m_;
-            if hashVerified
+            if obj.eBob.hashVerified
                 %disp('Eve successfully received the message.');
                 %disp('Eve is reflecting the check state back to Alice.');
             else
