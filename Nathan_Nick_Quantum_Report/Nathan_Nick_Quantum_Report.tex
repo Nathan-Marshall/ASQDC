@@ -1,0 +1,406 @@
+\documentclass[conference]{IEEEtran}
+%\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{algorithmic}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{pgfplots}
+\pgfplotsset{width=7cm,compat=1.8}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Simulating Attacks on Authenticated Semi-Quantum Direct Communication Protocol}
+
+\author{\IEEEauthorblockN{Nathan Marshall}
+\IEEEauthorblockA{
+Ottawa, Canada \\
+nathsmar@gmail.com}
+\and
+\IEEEauthorblockN{Nick Rivard}
+\IEEEauthorblockA{
+Ottawa, Canada \\
+nhrivard@gmail.com}
+}
+
+\maketitle
+
+\begin{abstract}
+
+This study presents a detailed analysis of the randomization-based authenticated semi-quantum direct
+communication protocol presented by Yi-Ping Luo and Tzonelih Hwang, as well as several of the attacks
+already examined in their analysis of the protocol. The protocol uses pre-shared keys
+rather than a classical channel, and requires only the sender to have advanced quantum capabilities.
+We have implemented a simulation of the protocol and confirmed that it is resistent to impersonation
+attacks, intercept-and-resend attacks, and one-qubit modification attacks. We have also solved
+the problem of reordering qubits into a random permutation based on a key,
+which was not explained in the original description of the protocol.
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+
+Authentication,
+Authenticated semi-quantum communication,
+Bell states,
+Quantum communication,
+Quantum cryptography,
+Semi-quantum communication
+
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+While practical quantum communication is feasible using
+modern technology, the cost of nodes capable of quantum computation
+will likely remain high for some time. Since simpler, "classical" nodes
+(with only the ability to read individual qubits) are cheaper,
+semi-quantum communication protocols are useful for practical,
+cost-efficient, secure communication.
+
+
+
+
+
+Several papers have tried to address this need, including
+the paper the present work is based on: Authenticated semi-quantum
+direct communication protocols using Bell states. The present work
+describes that paper and the insights, results, and conclusions gained
+from implementing one of two protocols described therein: Randomization-based
+Authenticated Semi-Quantum Direct Communication (ASQDC) protocol.
+
+The problem addressed in the present work was the implementation of
+the above-mentioned protocol in Matlab using Quantum Information Toolkit
+given several oversights in the specification presented in the original
+paper which are described later in the current work. Implementing
+the ASQDC protocol is relevant to the goal of realizing quantum communications
+on a large scale because the protocol addresses several of the major
+hurdles to widespread adoption of quantum communications while also
+hand-waving certain considerations which, as demonstrated later in
+the present work, require consideration by anyone who would use the
+protocol or provide it as a service. Given the widely acknowledged
+benefits of quantum communications, it therefore makes sense to explore
+the practicalities and compromises that arise in implementation.
+
+The authors successfully implemented the randomization-based ASQDC
+protocol as per the specifications laid out in the original paper,
+including generating data concerning the security of the protocol
+in the presence of four attacks: impersonation of Alice, impersonation
+of Bob, intercept-and-resend attack, and modification of 1-qubit attack.
+These results are consistent with the analysis presented in the original
+paper and support the claim that the protocol is secure against these
+attacks, even for small message sizes which is the worst-case. Some
+aspects of the security model did, however, need to be modified in
+order to keep the implementation as faithful to the original specification
+as possible.
+
+\section{Problem Domain}
+
+\subsection{Authentication}
+
+Authentication - or, more specifically message authentication - is
+the process of confirming the data origin integrity and the data integrity
+of a given message. This means confirming both that the message did
+in fact originate from a given sender and that the message was not
+modified during transit. This is often done using a combination of
+shared secrets (keys) and cryptographic hash functions. If the message
+can only be transformed into its corresponding plaintext by a key
+corresponding in some way to a key which is only in the possession
+of a known sender then one can infer that the message must have been
+sent by the known sender since it must have been encrypted using that
+key. Similarly for data integrity, if a given plaintext is inputted
+into a one-way function (a cryptographic hash function) and produces
+the observed hash value, then it can be inferred that it is the same
+message that was originally used by the known sender to produce the
+hash before they encrypted the message. Of course, in reality there
+can be many complications to the above, but this model is sufficient
+for the present discussion.
+
+\subsection{Requirements for Authentication in Traditional Protocols}
+
+Typically, quantum communications protocols will implement message
+authentication indirectly using authenticated classical (non-quantum)
+channels and nodes which are capable of performing quantum computation.
+This suggests restrictions on viable use-cases for message authentication
+in quantum communications. First, a dedicated and highly available
+authenticated classical channel might not be feasible in nodes are
+battery powered. Second, while quantum computers exist now, they tend
+to be expensive and sensitive to environmental conditions. This implies
+that it will be difficult to build and deploy reliable mobile quantum
+computers.
+
+\subsection{Authenticated Semi-Quantum Key Distribution}
+
+To address the requirement that all nodes be capable of quantum computation,
+Yu et al. proposed Authenticated Semi-Quantum Key Distribution (ASQKD)
+protocols. In these protocols, in order to circumvent the requirement
+for an authenticated classical channel, keys are shared between sender
+and receiver in advance. Furthermore, at the cost of making quantum
+communications one-way, the receiver need not be capable of quantum
+computation themselves. To be precise, Bob (the receiver) only needs
+to be able to perform the following operations: (1) prepare qubits
+in the classical basis $\left\{ \left|0\right\rangle ,\left|1\right\rangle \right\} $,
+(2) measure individual qubits in the the classical basis, (3) permute
+qubits, and (4) reflect qubits without measuring them. This is in
+contrast to Alice (the sender), who need to be able to perform the
+following operations: (1) prepare any arbitrary quantum states and
+(2) perform arbitrary quantum measurement.
+
+\subsection{Authenticated Semi-Quantum Direct Communication}
+
+The paper by Luo and Hwang which introduced the Authenticated Semi-Quantum
+Direct Communication (ASQDC) protocols - one of which was implemented
+in the present work - first introduced usage of Bell states (discussed
+below) into ASQKD protocols in order to prevent information leakage,
+thus enabling Alice to determine if Eve (a malicious actor) extracted
+information from the transmission. The details of how this is accomplished
+are given below.
+
+\subsection{Bell States}
+
+Bell states are the four maximally-entangled states that can be produced
+using two qubits. When the state of one qubit is measured (reduced
+to a classical bit), the state of the other qubit is instantly known
+by the party who measured the first. Quantum entanglement - the name
+for this phenomenon - is a physical property and is not something
+that can be logically circumvented. If, for example, two photons (qubits)
+are entangled into a Bell state and one of the photons is sent to
+another location, the sender will instantly know the value of the
+transmitted photon when they measure the remaining photon. 
+
+\subsection{Cases Implemented}
+
+Five cases are considered: no attacker, Eve impersonates Alice, Eve
+impersonates Bob, Eve intercepts and re-sends the message, and Eve
+modifies one qubit of the message.
+
+\subsubsection{No Attacker}
+
+In the case where there is no attacker, it is expected that the protocol
+will function every time (given that, in the simulation, there are
+no environmental factors). Alice first computes the hash $h(m)$ of
+the message $m$ and concatenates them into $M=m||h(m)$. The constraints
+on the hash function $h$ are that it must output a hash equal in
+length to the message and it must never produce collisions. Given
+these constraints, the authors opted to simply flip the value of each
+bit from the message in the hash. While this would not be secure in
+the wild, Eve will only be brute-forcing the keys in this simulation.
+Furthermore, it ensures that the protocol can be used to send any
+length of message without hash collisions. Next, Alice will produce
+a sequence of Bell-EPR pairs $S$ such that if $M[i]$=0 then $S[i]=\left|\phi^{+}\right\rangle $.
+Otherwise, $S[i]=\left|\psi^{-}\right\rangle $. Alice then generates
+a random sequence of Bell-EPR pairs $C$ in the basis $\left\{ \left|\phi^{+}\right\rangle ,\left|\psi^{-}\right\rangle \right\} $
+with the same length as $S$, labeling the first half $C_{b}$ and
+the second half $C_{a}$. Next, Alice tensors $S$ and $C$, producing
+$SC_{ba}$. $SC_{b}$ is then randomly shuffled using key $K_{1}$
+and sent to Bob as $Q$. Alice retains $C_{a}$.
+
+Upon reception of $SC_{b}$, Bob reorders $S^{\prime}C_{b}^{\prime}$
+using $K_{1}$ and then perfroms a Z-basis measurement on $S^{\prime}$,
+obtaining the measurement result $MR_{B}$, from which Bob can computer
+the message and hash $M^{\prime}=m^{\prime}||h\left(m\right)^{\prime}$.
+Bob then computes $h\left(m^{\prime}\right)$ and compares it to $h\left(m\right)^{\prime}$
+and, if they are not equal, Bob and Alice terminate the protocol.
+
+If $h\left(m^{\prime}\right)=h\left(m\right)^{\prime}$, Bob reorders
+$C_{b}^{\prime}$ using $K_{2}$ and reflects the result, $C_{b}^{\prime\prime}$
+back to Alice.
+
+Alice then applies $K_{2}$ to $C_{b}^{\prime\prime}$, obtaining
+$C_{b}^{\prime\prime\prime}$ and then compares $C_{b}^{\prime\prime\prime}C_{a}$
+with $C$ and, if they are equal, believes that the protocol worked
+properly.
+
+\subsubsection{Impersonating Alice}
+
+Eve can communicate with Bob, pretending to be Alice, by simply taking
+on the role of Alice in the protocol described above, using Eve has
+the requisite quantum computing capabilities described above. The
+only difference is that Eve needs to guess which keys $K_{1},K_{2}$
+to use.
+
+\subsubsection{Impersonating Bob}
+
+Likewise, Eve can impersonate Bob by receiving the message from Alice
+and using the part of the protocol normally used by Bob. As above,
+Eve will need to guess the keys $K_{1},K_{2}$.
+
+\subsubsection{Intercept-and-Resend Attack}
+
+In this attack, Eve first impersonates Bob to Alice and then imperonsates
+Alice to Bob, essentially conducting a MITM attack. The point of this
+attack, from Eve's perspective, is to determine the content of the
+message by measuring what she receives from Alice. Again, as above,
+Eve must guess the keys $K_{1},K_{2}$.
+
+\subsubsection{1-Qubit Modification Attack}
+
+In this attack, Eve performs a MITM attack, similar to above, but
+rather than measuring the message to determine its content, she modifies
+one of the qubits and then sends the resulting message to Bob.
+
+\section{Simulation of Protocol with and without Attacks}
+
+\subsection{Summary}
+
+The results achieved mostly reflected the predictions of the creators
+of the protocol. The protocol always worked in the absence of an attacker,
+as expected. In the cases involving Eve either impersonating Alice
+or Bob, the protocol could execute successfully only in the cases
+where Eve guesses both keys correctly, or where both keys are wrong
+but in such a way that in combination they right each other.
+
+\subsection{Security Analysis}
+
+\subsubsection{Impersonating Alice Attack}
+
+Since Eve does not know the key $K_{1}$, she must guess it. If $K_{1}$
+is $n$ bits long, then the probability of Eve guessing the correct
+key is $\frac{n}{2^{n}}$. In the event that she does guess $K_{1}$
+correctly, she will successfully impersonate Alice, thus fooling Bob.
+In the present work, the length of the key used during simulation
+was $n=12$, resulting in a probability $\frac{12}{2^{12}}=\frac{3}{1024}$
+that Eve correctly guessed the key. 
+
+\subsubsection{Impersonating Bob Attack}
+
+Since Eve does not know the key 
+
+\subsubsection{Intercept and Resend Attack}
+
+\subsubsection{1-Qubit Modification Attack}
+
+\section{Evaluation}
+
+The measured results do support the claims of the randomized-ASQDC
+protocol. The implementation tested in the current work behaved as
+expected in the face of five attacker cases: no attacker, impersonation
+of Alice, impersonation of Bob, intercept-and-resend attack, and 1-qubit
+modification attack. 
+
+\pgfplotstableread[row sep=\\,col sep=&]{
+    outcome                                 & Expected & Result \\
+    No Attacker: Success                    &    10000 &  10000 \\
+    Impersonate Alice: Detected             &     7500 &   7464 \\
+    Impersonate Bob: Detected               &     9961 &   9891 \\
+    Intercept-and-resend: Detected by Bob   &     7500 &   7441 \\
+    Intercept-and-resend: Detected by Alice &     9961 &   9954 \\
+    Intercept-and-resend: Detected          &     9990 &   9985 \\
+    1-Qubit Modification: Detected by Bob   &     6667 &   6678 \\
+    1-Qubit Modification: Detected by Alice &     3333 &   3322 \\
+    1-Qubit Modification: Detected          &    10000 &  10000 \\
+}\mydata
+
+\begin{figure}
+    \vspace{1em}
+    \caption{Expected vs. simulated results after 10,000 simulations with $n=16$}
+    \label{fig:resultsGraph}
+    \vspace{1em}
+    \begin{tikzpicture}
+        \begin{axis}
+            [
+                xbar,
+                ylabel = {Outcome},
+                xlabel = {\# occurrences},
+                xlabel style = {
+                    yshift = 1em,
+                },
+                bar shift = {-0.4*(\numplotsofactualtype*\pgfplotbarwidth + (\numplotsofactualtype-1)*(2pt)) - (.5+\plotnumofactualtype)*\pgfplotbarwidth - \plotnumofactualtype*(2pt)},
+                symbolic y coords = {
+                    No Attacker: Success,
+                    Impersonate Alice: Detected,
+                    Impersonate Bob: Detected,
+                    Intercept-and-resend: Detected by Bob,
+                    Intercept-and-resend: Detected by Alice,
+                    Intercept-and-resend: Detected,
+                    1-Qubit Modification: Detected by Bob,
+                    1-Qubit Modification: Detected by Alice,
+                    1-Qubit Modification: Detected,
+                },
+                tick label style = {
+                    font = \small,
+                },
+                y tick label style = {
+                    anchor = west,
+                    xshift = 0.1cm,
+                    yshift = 0,
+                },
+                y dir = reverse,
+                xtick = {0, 10000},
+                scaled x ticks = false,
+                ytick = data,
+                xmin = 0,
+                xmax = 10000,
+                nodes near coords,
+                bar width = .3cm,
+                height = 15cm,
+                width = 8cm,
+                legend style = {
+                    at={(0.5, 1)},
+                    anchor = north,
+                    legend columns = -1,
+                },
+            ]
+            \addplot table[y=outcome, x=Expected]{\mydata};
+            \addplot table[y=outcome, x=Result]{\mydata};
+            \legend{Expected\,\,\,\,, Result}
+        \end{axis}
+    \end{tikzpicture}
+\end{figure}
+
+\section{Conclusion}
+
+In summary, the current work tested a Matlab with QIT implementation
+of the randomization-based ASQDC protocol in five sets of circumstances:
+no attacker, impersonation of Alice, impersonation of Bob, intercept-and-resend
+attack, and 1-qubit modification attack. The measured results were
+then compared against the theoretical values, supporting the claims
+of the ASQDC protocol authors.
+
+This is relevant to quantum communications research as such a protocol
+may be more feasible than fully-quantum protocols in a variety of
+circumstances in the short-to-medium term. Furthermore, it was shown
+that the protocol is, in fact, secure against four major categories
+of attack.
+
+Future work would include testing the protocol against additional
+attacks, such as n-qubit modification attacks. It would also be of
+benefit to test the protocol on computers which are capable of handling
+larger values of $n$ (longer messages) in order to demonstrate empirically
+that the security does in fact scale with message length as predicted
+by theory.
+
+\begin{thebibliography}{00}
+\bibitem{b1} Y.-P. Luo, T. Hwang, ``Authenticated semi-quantum direct communication protocols using Bell states,'' Quantum Information Processing, vol. 15, no. 2, pp. 957--958, November 2015.
+\end{thebibliography}
+\vspace{12pt}
+
+\appendix
+\section{Matlab Code}
+All Matlab code for the project is attached below. The {\ttfamily Execute.m} script was used to generate the simulated results in Fig. \ref{fig:resultsGraph}.
+{\ttfamily numExecutions} on line 5 is the number of simulations to run for each type of attack, which can be modified from 10,000.
+
+\onecolumn
+\definecolor{MatlabComment}{rgb}{0, 0.6, 0}
+\lstset {
+    language=Matlab,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    commentstyle=\color{MatlabComment},
+    keywordstyle=\color{blue},
+    stringstyle=\color{magenta},
+}
+\lstinputlisting[title=Alice.m]{"../Alice.m"}
+\lstinputlisting[title=Bob.m]{"../Bob.m"}
+\lstinputlisting[title=Eve.m]{"../Eve.m"}
+\lstinputlisting[title=Execute.m]{"../Execute.m"}
+\lstinputlisting[title=helper.m]{"../helper.m"}
+\lstinputlisting[title=utilities.m]{"../utilities.m"}
+
+\end{document}

@@ -1,5 +1,8 @@
+% This is the main execution script, which executes each of the attacks
+% on a loop and counts the outcomes.
+
 n = 16;
-numExecutions = 10;
+numExecutions = 10000;
 
 fprintf('Executing randomization-based protocol, no attacker...\n');
 successCount = 0;
