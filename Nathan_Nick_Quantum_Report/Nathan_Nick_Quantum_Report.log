@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018/W32TeX) (preloaded format=pdflatex 2018.10.2)  12 DEC 2019 22:36
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018/W32TeX) (preloaded format=pdflatex 2018.10.2)  12 DEC 2019 23:51
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -738,13 +738,13 @@ Before submitting the final camera ready copy, remember to:
 Here is how much of TeX's memory you used:
  26510 strings out of 492639
  647959 string characters out of 6133088
- 1282963 words of memory out of 5000000
+ 1283991 words of memory out of 5000000
  29946 multiletter control sequences out of 15000+600000
  41459 words of font info for 93 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  62i,19n,100p,878b,2308s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/texlive/2018/texmf-dist/fonts/enc/dvips/base/8r.enc}<c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2018/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb><c:/texlive/2018/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2018/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb><c:/texlive/2018/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/texlive/2018/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on "c:/Users/Nathan/Projects/4th Year - 2019 Fall/Quantum Techniques in Computing/ASQDC/Git Repo/Nathan_Nick_Quantum_Report/Nathan_Nick_Quantum_Report.pdf" (14 pages, 214587 bytes).
+Output written on "c:/Users/Nathan/Projects/4th Year - 2019 Fall/Quantum Techniques in Computing/ASQDC/Git Repo/Nathan_Nick_Quantum_Report/Nathan_Nick_Quantum_Report.pdf" (14 pages, 218512 bytes).
 PDF statistics:
  122 PDF objects out of 1000 (max. 8388607)
  88 compressed objects within 1 object stream
