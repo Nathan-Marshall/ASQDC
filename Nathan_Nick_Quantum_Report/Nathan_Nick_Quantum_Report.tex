@@ -3,6 +3,7 @@
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{algorithmic}
 \usepackage{amsmath,amssymb,amsfonts}
+\usepackage{braket}
 \usepackage{cite}
 \usepackage{graphicx}
 \usepackage{listings}
@@ -62,73 +63,61 @@ will likely remain high for some time. Since simpler, "classical" nodes
 semi-quantum communication protocols are useful for practical,
 cost-efficient, secure communication.
 
+This work is based on an authenticated semi-quantum direct communication (ASQDC) protocol
+proposed by Yi-Ping Luo and Tzonelih Hwang that takes advantage of this idea
+of a "classical" receiver Bob \cite{LuoHwang}.
+The present work describes their article and the insights,
+results, and conclusions gained from implementing the randomization-based version
+of the ASQDC protcol described therein.
 
+We implemented a simulation of the aforementioned protocol in Matlab
+using Quantum Information Toolkit, which brought to light parts of the
+protocol that were not defined thoroughly enough to trivially follow.
+Our contributions are a useful reference for implementing a real ASQDC
+network, since the challenges we encountered in reordering qubits based
+on a shared key would inevitably be encountered by others as well.
 
-
-
-Several papers have tried to address this need, including
-the paper the present work is based on: Authenticated semi-quantum
-direct communication protocols using Bell states. The present work
-describes that paper and the insights, results, and conclusions gained
-from implementing one of two protocols described therein: Randomization-based
-Authenticated Semi-Quantum Direct Communication (ASQDC) protocol.
-
-The problem addressed in the present work was the implementation of
-the above-mentioned protocol in Matlab using Quantum Information Toolkit
-given several oversights in the specification presented in the original
-paper which are described later in the current work. Implementing
-the ASQDC protocol is relevant to the goal of realizing quantum communications
-on a large scale because the protocol addresses several of the major
-hurdles to widespread adoption of quantum communications while also
-hand-waving certain considerations which, as demonstrated later in
-the present work, require consideration by anyone who would use the
-protocol or provide it as a service. Given the widely acknowledged
-benefits of quantum communications, it therefore makes sense to explore
-the practicalities and compromises that arise in implementation.
-
-The authors successfully implemented the randomization-based ASQDC
-protocol as per the specifications laid out in the original paper,
-including generating data concerning the security of the protocol
+We successfully implemented the randomization-based ASQDC
+protocol as per the specifications laid out in their article,
+and also generated data concerning the security of the protocol
 in the presence of four attacks: impersonation of Alice, impersonation
 of Bob, intercept-and-resend attack, and modification of 1-qubit attack.
-These results are consistent with the analysis presented in the original
-paper and support the claim that the protocol is secure against these
-attacks, even for small message sizes which is the worst-case. Some
-aspects of the security model did, however, need to be modified in
-order to keep the implementation as faithful to the original specification
-as possible.
+We slightly modified the definition of the intercept-and-resend attack
+from the description given by Luo and Hwang, and we disagreed slightly on the
+security analysis for the impersonation of Bob. Nevertheless, our
+results support the claim that the protocol is secure against these
+attacks, except for impersonating Alice with small message size.
 
 \section{Problem Domain}
 
 \subsection{Authentication}
 
-Authentication - or, more specifically message authentication - is
-the process of confirming the data origin integrity and the data integrity
-of a given message. This means confirming both that the message did
-in fact originate from a given sender and that the message was not
-modified during transit. This is often done using a combination of
+Message authentication is the process of confirming the origin and
+data integrity of a given message. This means confirming both that the
+message did in fact originate from a given sender and that the message
+was not modified during transit. This is often done using a combination of
 shared secrets (keys) and cryptographic hash functions. If the message
-can only be transformed into its corresponding plaintext by a key
-corresponding in some way to a key which is only in the possession
-of a known sender then one can infer that the message must have been
+can only be transformed into its corresponding plaintext by a particular key
+which corresponds to a key which is only in the possession
+of a known sender, then one can infer that the message must have been
 sent by the known sender since it must have been encrypted using that
-key. Similarly for data integrity, if a given plaintext is inputted
+key. Similarly for data integrity, if a given plaintext is input
 into a one-way function (a cryptographic hash function) and produces
 the observed hash value, then it can be inferred that it is the same
 message that was originally used by the known sender to produce the
-hash before they encrypted the message. Of course, in reality there
+hash before they encrypted the message. In reality there
 can be many complications to the above, but this model is sufficient
 for the present discussion.
 
 \subsection{Requirements for Authentication in Traditional Protocols}
 
-Typically, quantum communications protocols will implement message
+Typically, quantum communications protocols implement message
 authentication indirectly using authenticated classical (non-quantum)
 channels and nodes which are capable of performing quantum computation.
-This suggests restrictions on viable use-cases for message authentication
-in quantum communications. First, a dedicated and highly available
-authenticated classical channel might not be feasible in nodes are
-battery powered. Second, while quantum computers exist now, they tend
+These restraints limit the viable use-cases for message authentication
+in quantum communications. Firstly, a dedicated and highly available
+authenticated classical channel might not be feasible in nodes which are
+powered by battery. Secondly, while quantum computers exist now, they tend
 to be expensive and sensitive to environmental conditions. This implies
 that it will be difficult to build and deploy reliable mobile quantum
 computers.
@@ -137,13 +126,13 @@ computers.
 
 To address the requirement that all nodes be capable of quantum computation,
 Yu et al. proposed Authenticated Semi-Quantum Key Distribution (ASQKD)
-protocols. In these protocols, in order to circumvent the requirement
+protocols \cite{YuEtAl}. In these protocols, in order to circumvent the requirement
 for an authenticated classical channel, keys are shared between sender
 and receiver in advance. Furthermore, at the cost of making quantum
 communications one-way, the receiver need not be capable of quantum
 computation themselves. To be precise, Bob (the receiver) only needs
 to be able to perform the following operations: (1) prepare qubits
-in the classical basis $\left\{ \left|0\right\rangle ,\left|1\right\rangle \right\} $,
+in the classical basis $\left\{ \ket{0} ,\ket{1} \right\} $,
 (2) measure individual qubits in the the classical basis, (3) permute
 qubits, and (4) reflect qubits without measuring them. This is in
 contrast to Alice (the sender), who need to be able to perform the
@@ -152,9 +141,9 @@ following operations: (1) prepare any arbitrary quantum states and
 
 \subsection{Authenticated Semi-Quantum Direct Communication}
 
-The paper by Luo and Hwang which introduced the Authenticated Semi-Quantum
-Direct Communication (ASQDC) protocols - one of which was implemented
-in the present work - first introduced usage of Bell states (discussed
+The paper by Luo and Hwang which introduced the ASQDC protocols --
+one of which was implemented in the present work --
+first introduced usage of Bell states (discussed
 below) into ASQKD protocols in order to prevent information leakage,
 thus enabling Alice to determine if Eve (a malicious actor) extracted
 information from the transmission. The details of how this is accomplished
@@ -165,8 +154,8 @@ are given below.
 Bell states are the four maximally-entangled states that can be produced
 using two qubits. When the state of one qubit is measured (reduced
 to a classical bit), the state of the other qubit is instantly known
-by the party who measured the first. Quantum entanglement - the name
-for this phenomenon - is a physical property and is not something
+by the party who measured the first. Quantum entanglement -- the name
+for this phenomenon -- is a physical property and is not something
 that can be logically circumvented. If, for example, two photons (qubits)
 are entangled into a Bell state and one of the photons is sent to
 another location, the sender will instantly know the value of the
@@ -191,9 +180,9 @@ bit from the message in the hash. While this would not be secure in
 the wild, Eve will only be brute-forcing the keys in this simulation.
 Furthermore, it ensures that the protocol can be used to send any
 length of message without hash collisions. Next, Alice will produce
-a sequence of Bell-EPR pairs $S$ such that if $M[i]$=0 then $S[i]=\left|\phi^{+}\right\rangle $.
-Otherwise, $S[i]=\left|\psi^{-}\right\rangle $. Alice then generates
-a random sequence of Bell-EPR pairs $C$ in the basis $\left\{ \left|\phi^{+}\right\rangle ,\left|\psi^{-}\right\rangle \right\} $
+a sequence of Bell-EPR pairs $S$ such that if $M[i]$=0 then $S[i]=\ket{\phi^{+}} $.
+Otherwise, $S[i]=\ket{\psi^{-}} $. Alice then generates
+a random sequence of Bell-EPR pairs $C$ in the basis $\left\{ \ket{\phi^{+}} ,\ket{\psi^{-}} \right\} $
 with the same length as $S$, labeling the first half $C_{b}$ and
 the second half $C_{a}$. Next, Alice tensors $S$ and $C$, producing
 $SC_{ba}$. $SC_{b}$ is then randomly shuffled using key $K_{1}$
@@ -375,7 +364,8 @@ that the security does in fact scale with message length as predicted
 by theory.
 
 \begin{thebibliography}{00}
-\bibitem{b1} Y.-P. Luo, T. Hwang, ``Authenticated semi-quantum direct communication protocols using Bell states,'' Quantum Information Processing, vol. 15, no. 2, pp. 957--958, November 2015.
+\bibitem{LuoHwang} Y.-P. Luo, T. Hwang, ``Authenticated semi-quantum direct communication protocols using Bell states,'' Quantum Information Processing, vol. 15, no. 2, pp. 957--958, 2015.
+\bibitem{YuEtAl} K. Yu, C.-W. Yang, C.-H. Liao, T. Hwang, ``Authenticated semi-quantum key distribution protocol using Bell states,'' Quantum Information Processing, vol. 13, no. 6, pp. 1457--1565, 2014.
 \end{thebibliography}
 \vspace{12pt}
 
