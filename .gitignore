@@ -1,2 +1,4 @@
 *.asv
 *~
+Nathan_Nick_Quantum_Report/*
+!Nathan_Nick_Quantum_Report/Nathan_Nick_Quantum_Report.tex
