@@ -213,42 +213,55 @@ then Alice believes that the protocol succeeded and that the message was not com
 
 \subsubsection{Impersonating Alice}
 
-Eve can communicate with Bob, pretending to be Alice, by simply taking
-on the role of Alice in the protocol described above, using Eve has
-the requisite quantum computing capabilities described above. The
-only difference is that Eve needs to guess which keys $K_{1},K_{2}$
-to use.
+In this attack, Eve pretends to be Alice by sending a forged message to Bob.
+We assume that Eve implements the exact procedures that Alice
+would under ordinary circumstances, including Bell-EPR
+measurement and the same hash function. The only difference is that Eve
+does not know $K_{1}$ nor $K_{2}^{-1}$, and must guess, shuffling the
+qubits arbitraily. Eve does not know whether the reflected check qubits $C_{b}$
+are correct, but expects $\frac{n}{4}$ qubits to be reflected from Bob.
 
 \subsubsection{Impersonating Bob}
 
-Likewise, Eve can impersonate Bob by receiving the message from Alice
-and using the part of the protocol normally used by Bob. As above,
-Eve will need to guess the keys $K_{1},K_{2}$.
+In this attack, Eve pretends to be Bob by intercepting a message sent from Alice that was
+intended for Bob. Eve does not know $K_{1}^{-1}$ nor $K_{2}$, and must guess, shuffling the
+qubits arbitraily. This means that Eve does not know if the received message $m^{\prime}$ is correct, even
+if $h(m^{\prime}) = h(m)^{\prime}$. While our implementation behaves very similarly to Bob
+under ordinary circumstances, Eve does not need to implement Z-basis measurement at all, and only needs
+to reflect the check qubits $C_{b}^{\prime}$ back in an arbitrary order.
 
 \subsubsection{Intercept-and-Resend Attack}
 
-In this attack, Eve first impersonates Bob to Alice and then imperonsates
-Alice to Bob, essentially conducting a MITM attack. The point of this
-attack, from Eve's perspective, is to determine the content of the
-message by measuring what she receives from Alice. Again, as above,
-Eve must guess the keys $K_{1},K_{2}$.
+In our definition of the intercept-and-resend attack, Eve can be considred to
+be impersonating both Bob and Alice. 
+Eve first impersonates Bob when communicating with Alice, then impersonates
+Alice while communicating with Bob, essentially conducting a man-in-the-middle (MITM) attack.
+This differs from the intercept-and-resend attack described by Luo and Hwang, in which Eve measures $Q$
+on the way from Alice to Bob and $C_{b}$ on the way from Bob to Alice, collapses the quantum
+states and destroying the entanglement of the Bell-EPR pairs.
+
+In our definition of the attack, Eve must guess $K_{1}$, $K_{1}^{-1}$, $K_{2}$, and $K_{2}^{-1}$.
+The intention of this attack is for Eve to determine the content of $m$ by measuring what
+she receives from Alice. However, Eve cannot guarantee that the received message is correct, since
+she does not know if her key $K_{1}^{-1}$ is correct, so the gathered information is of no use.
 
 \subsubsection{1-Qubit Modification Attack}
 
-In this attack, Eve performs a MITM attack, similar to above, but
-rather than measuring the message to determine its content, she modifies
-one of the qubits and then sends the resulting message to Bob.
+In this attack, Eve performs a MITM attack, but
+rather than reordering and measuring the message to determine its content,
+she modifies one qubit in $Q$ as received from Alice, and then sends the result to Bob.
 
 \section{Simulation of Protocol with and without Attacks}
 
 \subsection{Summary}
 
-The results achieved mostly reflected the predictions of the creators
-of the protocol. The protocol always worked in the absence of an attacker,
-as expected. In the cases involving Eve either impersonating Alice
-or Bob, the protocol could execute successfully only in the cases
-where Eve guesses both keys correctly, or where both keys are wrong
-but in such a way that in combination they right each other.
+The results of our simulation mostly reflected the predictions of Luo and Hwang,
+though our calculated detection probability for impersonation of Bob differed from theirs.
+The empirical results are not stable enough to conclude with certainty which of the formulas is correct.
+
+The protocol always worked in the absence of an attacker, and Eve was always detected
+in a 1-qubit modification attack. The other attacks were detected with very high probability,
+except for the impersonation of Alice, since our message length was quite small ($n=16$, $|m|=2$).
 
 \subsection{Security Analysis}
 
