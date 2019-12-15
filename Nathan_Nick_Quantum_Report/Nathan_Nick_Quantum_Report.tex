@@ -262,13 +262,37 @@ In the present work, the length of the key used during simulation
 was $n=12$, resulting in a probability $\frac{12}{2^{12}}=\frac{3}{1024}$
 that Eve correctly guessed the key. 
 
+In order to successfully impersonate Alice, Eve must deliver to Bob
+a message $m_{e}$ and a hash $h\left(m_{e}\right)_{e}$ such that
+$h\left(m_{e}\right)=h\left(m_{e}\right)_{e}$. Because $h\left(m_{e}\right)$
+is $2$ Bell pairs in length, and there is a $\frac{1}{2}$ probability
+that each Bell pair is comprised of two equal qubits and a $\frac{1}{2}$
+probability that each Bell pair is comprised of two unequal qubits
+(note: where the qubits came from isn't actually what is important).
+Thus, the total probability that $h\left(m_{e}\right)=h\left(m_{e}\right)_{e}$
+is $\left(\frac{1}{2}\right)^{\frac{n}{8}}=\frac{1}{4}$ and the probability
+that Eve is detected is $1-\frac{1}{4}=\frac{3}{4}$. This corresponds
+to the data collected via the simulation.
+
 \subsubsection{Impersonating Bob Attack}
 
-Since Eve does not know the key 
+In order to successfully impersonate Bob, Eve must deliver to Alice
+a $C_{b_{e}}$ such that $C_{b_{e}a}=C_{ba}$. Because either value
+is comprised of $4$ qubits (half of each in $C_{b_{e}}$ and half
+of each in $C_{a}$, and because the corresponding Bell pairs each
+have a $\frac{1}{4}$ probability of turning out correctly. Therefore,
+the probability that $C_{b_{e}a}=C_{ba}$ is $ $
 
 \subsubsection{Intercept and Resend Attack}
 
 \subsubsection{1-Qubit Modification Attack}
+
+In this case, Eve cannot successfully modify a single qubit without
+being detected because either she will modify a single qubit in $m$
+(in which case $h\left(m_{e}\right)\neq h\left(m_{e}\right)_{e}$),
+or she will modify a single qubit in $h\left(m\right)$ (in which
+case, again, $h\left(m_{e}\right)\neq h\left(m\right)$), or else
+she will modify a single qubit in $C_{b}$ (in which case, 
 
 \section{Evaluation}
 
