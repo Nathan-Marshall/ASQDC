@@ -71,7 +71,7 @@ results, and conclusions gained from implementing the randomization-based versio
 of the ASQDC protcol described therein.
 
 We implemented a simulation of the aforementioned protocol in Matlab
-using Quantum Information Toolkit, which brought to light parts of the
+using Quantum Information Toolkit (QIT), which brought to light parts of the
 protocol that were not defined thoroughly enough to trivially follow.
 Our contributions are a useful reference for implementing a real ASQDC
 network, since the challenges we encountered in reordering qubits based
@@ -118,91 +118,98 @@ These restraints limit the viable use-cases for message authentication
 in quantum communications. Firstly, a dedicated and highly available
 authenticated classical channel might not be feasible in nodes which are
 powered by battery. Secondly, while quantum computers exist now, they tend
-to be expensive and sensitive to environmental conditions. This implies
-that it will be difficult to build and deploy reliable mobile quantum
-computers.
+to be expensive and sensitive to environmental conditions, so it would be very
+challenging to build and deploy reliable mobile quantum computers.
 
 \subsection{Authenticated Semi-Quantum Key Distribution}
 
-To address the requirement that all nodes be capable of quantum computation,
-Yu et al. proposed Authenticated Semi-Quantum Key Distribution (ASQKD)
-protocols \cite{YuEtAl}. In these protocols, in order to circumvent the requirement
-for an authenticated classical channel, keys are shared between sender
-and receiver in advance. Furthermore, at the cost of making quantum
-communications one-way, the receiver need not be capable of quantum
-computation themselves. To be precise, Bob (the receiver) only needs
+Before ASQDC protocols were designed, Yu et al. proposed Authenticated
+Semi-Quantum Key Distribution (ASQKD) protocols \cite{YuEtAl}, which also
+require only the sender to have full quantum capabilities. In these protocols,
+in order to circumvent the need for an authenticated classical channel,
+keys are shared between sender and receiver in advance. The receiver Bob is
+considered a classical Bob because it only needs
 to be able to perform the following operations: (1) prepare qubits
 in the classical basis $\left\{ \ket{0} ,\ket{1} \right\} $,
 (2) measure individual qubits in the the classical basis, (3) permute
-qubits, and (4) reflect qubits without measuring them. This is in
-contrast to Alice (the sender), who need to be able to perform the
-following operations: (1) prepare any arbitrary quantum states and
+qubits, and (4) reflect qubits without measuring them. The sender Alice needs
+to perform the following operations: (1) prepare any arbitrary quantum states and
 (2) perform arbitrary quantum measurement.
 
-\subsection{Authenticated Semi-Quantum Direct Communication}
+\subsection{ASQDC and Bell States}
 
-The paper by Luo and Hwang which introduced the ASQDC protocols --
-one of which was implemented in the present work --
-first introduced usage of Bell states (discussed
-below) into ASQKD protocols in order to prevent information leakage,
-thus enabling Alice to determine if Eve (a malicious actor) extracted
-information from the transmission. The details of how this is accomplished
-are given below.
-
-\subsection{Bell States}
+Building upon the work of Yu et. al. on ASQKD, Luo and Hwang introduced the first
+ASQDC protocols, which make use of Bell states to prevent information leakage,
+enabling Alice to determine if a malicious actor Eve extracted
+information from the transmission.
 
 Bell states are the four maximally-entangled states that can be produced
 using two qubits. When the state of one qubit is measured (reduced
 to a classical bit), the state of the other qubit is instantly known
-by the party who measured the first. Quantum entanglement -- the name
-for this phenomenon -- is a physical property and is not something
-that can be logically circumvented. If, for example, two photons (qubits)
+by the party who measured the first. If, for example, two photons (qubits)
 are entangled into a Bell state and one of the photons is sent to
 another location, the sender will instantly know the value of the
 transmitted photon when they measure the remaining photon. 
 
 \subsection{Cases Implemented}
 
-Five cases are considered: no attacker, Eve impersonates Alice, Eve
-impersonates Bob, Eve intercepts and re-sends the message, and Eve
-modifies one qubit of the message.
+We consider five cases: no attacker, Eve impersonating Alice, Eve
+impersonating Bob, Eve intercepting and resending the message, and Eve
+modifying one qubit of the message.
 
 \subsubsection{No Attacker}
 
-In the case where there is no attacker, it is expected that the protocol
-will function every time (given that, in the simulation, there are
-no environmental factors). Alice first computes the hash $h(m)$ of
-the message $m$ and concatenates them into $M=m||h(m)$. The constraints
-on the hash function $h$ are that it must output a hash equal in
-length to the message and it must never produce collisions. Given
-these constraints, the authors opted to simply flip the value of each
-bit from the message in the hash. While this would not be secure in
-the wild, Eve will only be brute-forcing the keys in this simulation.
-Furthermore, it ensures that the protocol can be used to send any
-length of message without hash collisions. Next, Alice will produce
-a sequence of Bell-EPR pairs $S$ such that if $M[i]$=0 then $S[i]=\ket{\phi^{+}} $.
-Otherwise, $S[i]=\ket{\psi^{-}} $. Alice then generates
-a random sequence of Bell-EPR pairs $C$ in the basis $\left\{ \ket{\phi^{+}} ,\ket{\psi^{-}} \right\} $
-with the same length as $S$, labeling the first half $C_{b}$ and
-the second half $C_{a}$. Next, Alice tensors $S$ and $C$, producing
-$SC_{ba}$. $SC_{b}$ is then randomly shuffled using key $K_{1}$
-and sent to Bob as $Q$. Alice retains $C_{a}$.
+In the case where there is no attacker, the protocol is expected
+to function every time, because our simulation does not take environmental
+factors into account.
 
-Upon reception of $SC_{b}$, Bob reorders $S^{\prime}C_{b}^{\prime}$
-using $K_{1}$ and then perfroms a Z-basis measurement on $S^{\prime}$,
-obtaining the measurement result $MR_{B}$, from which Bob can computer
+Given a classical message $m$ of length $\frac{n}{8}$, Alice computes
+the hash $h(m)$ of $m$ and concatenates $m$ with $h(m)$ to produce $M=m||h(m)$ where
+$||$ denotes concatenation. The constraints
+on the hash function $h$ are that it must output a hash equal in
+length to the message and that it must never produce collisions. Given
+these constraints, we opted to simply flip the value of each
+bit from the message in the hash. While this is not an ideal, secure hash function,
+our simulation is very cpu-intensive and memory intensive when dealing with an $m$ larger
+than 2 bits, so Eve will only be brute-forcing the keys in this simulation.
+Our hash function does ensure that the protocol can be used to send any
+length of message without hash collisions.
+With longer messages, a more standard, secure hash function should be used, and a fixed message length
+should be used, which is equal to the number of bits output by that hash function.
+
+Next, Alice produces a sequence of Bell-EPR pairs $S$ such that if $M[i]$=0 then $S[i]=\ket{\phi^{+}} $.
+Otherwise, $S[i]=\ket{\psi^{-}} $. Alice then generates
+a check state: a random sequence of Bell-EPR pairs $C$ in the basis $\left\{ \ket{\phi^{+}} ,\ket{\psi^{-}} \right\} $
+with the same length as $S$. The individual qubits of each of the Bell-EPR pairs within $C$ are reordered such that
+the first qubit from each pair is ordered in sequence $C_{a}$ preceded by the sequence $C_{b}$ of each second
+qubit from each pair.
+
+Alice shuffles the qubits in the tensor product of $S$ and $C_{b}$,
+based on $K_{1}$ which is a {\LARGE\color{red}Lehmer code} that represents a random permutation of $\frac{3n}{4}$ elements.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CITE!!!!!!!!!!!!!!!!!!!!!!!
+We call the resulting shuffled sequence $Q$. $Q$ is sent to Bob, while Alice retains $C_{a}$,
+which will be used later to verify that Bob successfully received the message. In out QIT implementation,
+$C_{a}$ appears to be included in $Q$, but this is only because we were unaware of a way to separate the states
+using QIT. Bob never measures nor modifies the qubits in $C_{a}$, and they should be considered to have never been sent.
+
+Upon receiving $SC_{b}$, Bob reorders $S^{\prime}C_{b}^{\prime}$
+using $K_{1}^{-1}$ which denotes the Lehmer code representing the inverse permutation of that represented by $K_{1}$.
+Bob then performs a Z-basis measurement on $S^{\prime}$,
+obtaining the measurement result $MR_{b}$, from which Bob retrieves
 the message and hash $M^{\prime}=m^{\prime}||h\left(m\right)^{\prime}$.
 Bob then computes $h\left(m^{\prime}\right)$ and compares it to $h\left(m\right)^{\prime}$
-and, if they are not equal, Bob and Alice terminate the protocol.
+and, if they are not equal, Bob terminates the protocol.
 
-If $h\left(m^{\prime}\right)=h\left(m\right)^{\prime}$, Bob reorders
-$C_{b}^{\prime}$ using $K_{2}$ and reflects the result, $C_{b}^{\prime\prime}$
+If $h\left(m^{\prime}\right)=h\left(m\right)^{\prime}$, Bob shuffles
+$C_{b}^{\prime}$ using Lehmer code $K_{2}$ and reflects the result, $C_{b}^{\prime\prime}$
 back to Alice.
 
-Alice then applies $K_{2}$ to $C_{b}^{\prime\prime}$, obtaining
-$C_{b}^{\prime\prime\prime}$ and then compares $C_{b}^{\prime\prime\prime}C_{a}$
-with $C$ and, if they are equal, believes that the protocol worked
-properly.
+Alice then applies $K_{2}^{-1}$, the Lehmer code representing the inverse
+of the permutation given by $K_{2}$, to reorder $C_{b}^{\prime\prime}$, obtaining
+$C_{b}^{\prime\prime\prime}$. The qubits from $C_{b}^{\prime\prime\prime}$ are reordered
+with the qubits from $C_{a}$ to form a sequence $C^{\prime}$ of pairs, which is expected to be the
+original check state $C$. Alice performs Bell-EPR measurement on $C^{\prime}$, and if the result
+is equal to the original bit sequence that was used to generate the Bell-EPR pairs of $C$,
+then Alice believes that the protocol succeeded and that the message was not compromised.
 
 \subsubsection{Impersonating Alice}
 
