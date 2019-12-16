@@ -35,8 +35,8 @@ nhrivard@gmail.com}
 This study presents a detailed analysis of the randomization-based authenticated semi-quantum direct
 communication protocol presented by Yi-Ping Luo and Tzonelih Hwang, as well as several of the attacks
 already examined in their analysis of the protocol. The protocol uses pre-shared keys
-rather than a classical channel, and requires only the sender to have advanced quantum capabilities.
-We have implemented a simulation of the protocol and confirmed that it is resistent to impersonation
+rather than a classical channel and requires only the sender to have advanced quantum capabilities.
+We have implemented a simulation of the protocol and confirmed that it is resistant to impersonation
 attacks, intercept-and-resend attacks, and one-qubit modification attacks. We have also solved
 the problem of reordering qubits into a random permutation based on a key,
 which was not explained in the original description of the protocol.
@@ -68,7 +68,7 @@ proposed by Yi-Ping Luo and Tzonelih Hwang that takes advantage of this idea
 of a "classical" receiver Bob \cite{LuoHwang}.
 The present work describes their article and the insights,
 results, and conclusions gained from implementing the randomization-based version
-of the ASQDC protcol described therein.
+of the ASQDC protocol described therein.
 
 We implemented a simulation of the aforementioned protocol in Matlab
 using Quantum Information Toolkit (QIT), which brought to light parts of the
@@ -101,7 +101,7 @@ can only be transformed into its corresponding plaintext by a particular key
 which corresponds to a key which is only in the possession
 of a known sender, then one can infer that the message must have been
 sent by the known sender since it must have been encrypted using that
-key. Similarly for data integrity, if a given plaintext is input
+key. Similarly, for data integrity, if a given plaintext is input
 into a one-way function (a cryptographic hash function) and produces
 the observed hash value, then it can be inferred that it is the same
 message that was originally used by the known sender to produce the
@@ -131,7 +131,7 @@ keys are shared between sender and receiver in advance. The receiver Bob is
 considered a classical Bob because it only needs
 to be able to perform the following operations: (1) prepare qubits
 in the classical basis $\left\{ \ket{0} ,\ket{1} \right\} $,
-(2) measure individual qubits in the the classical basis, (3) permute
+(2) measure individual qubits in the classical basis, (3) permute
 qubits, and (4) reflect qubits without measuring them. The sender Alice needs
 to perform the following operations: (1) prepare any arbitrary quantum states and
 (2) perform arbitrary quantum measurement.
@@ -170,7 +170,7 @@ on the hash function $h$ are that it must output a hash equal in
 length to the message and that it must never produce collisions. Given
 these constraints, we opted to simply flip the value of each
 bit from the message in the hash. While this is not an ideal, secure hash function,
-our simulation is very cpu-intensive and memory intensive when dealing with an $m$ larger
+our simulation is very CPU intensive and memory intensive when dealing with an $m$ larger
 than 2 bits, so Eve will only be brute-forcing the keys in this simulation.
 Our hash function does ensure that the protocol can be used to send any
 length of message without hash collisions.
@@ -218,21 +218,21 @@ We assume that Eve implements the exact procedures that Alice
 would under ordinary circumstances, including Bell-EPR
 measurement and the same hash function. The only difference is that Eve
 does not know $K_{1}$ nor $K_{2}^{-1}$, and must guess, shuffling the
-qubits arbitraily. Eve does not know whether the reflected check qubits $C_{b}$
+qubits arbitrarily. Eve does not know whether the reflected check qubits $C_{b}$
 are correct, but expects $\frac{n}{4}$ qubits to be reflected from Bob.
 
 \subsubsection{Impersonating Bob}
 
 In this attack, Eve pretends to be Bob by intercepting a message sent from Alice that was
 intended for Bob. Eve does not know $K_{1}^{-1}$ nor $K_{2}$, and must guess, shuffling the
-qubits arbitraily. This means that Eve does not know if the received message $m^{\prime}$ is correct, even
+qubits arbitrarily. This means that Eve does not know if the received message $m^{\prime}$ is correct, even
 if $h(m^{\prime}) = h(m)^{\prime}$. While our implementation behaves very similarly to Bob
 under ordinary circumstances, Eve does not need to implement Z-basis measurement at all, and only needs
 to reflect the check qubits $C_{b}^{\prime}$ back in an arbitrary order.
 
 \subsubsection{Intercept-and-Resend Attack}
 
-In our definition of the intercept-and-resend attack, Eve can be considred to
+In our definition of the intercept-and-resend attack, Eve can be considered to
 be impersonating both Bob and Alice. 
 Eve first impersonates Bob when communicating with Alice, then impersonates
 Alice while communicating with Bob, essentially conducting a man-in-the-middle (MITM) attack.
