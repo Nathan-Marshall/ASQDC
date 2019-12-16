@@ -1,4 +1,4 @@
-\documentclass[conference]{IEEEtran}
+\documentclass[conference,compsoc]{IEEEtran}
 %\IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{algorithmic}
@@ -263,66 +263,116 @@ The protocol always worked in the absence of an attacker, and Eve was always det
 in a 1-qubit modification attack. The other attacks were detected with very high probability,
 except for the impersonation of Alice, since our message length was quite small ($n=16$, $|m|=2$).
 
-\subsection{Security Analysis}
+\subsection{Security Analysis} \label{sect:securityAnalysis}
 
-\subsubsection{Impersonating Alice Attack}
+\subsubsection{Impersonation of Alice Attack}
 
-Since Eve does not know the key $K_{1}$, she must guess it. If $K_{1}$
-is $n$ bits long, then the probability of Eve guessing the correct
-key is $\frac{n}{2^{n}}$. In the event that she does guess $K_{1}$
-correctly, she will successfully impersonate Alice, thus fooling Bob.
-In the present work, the length of the key used during simulation
-was $n=12$, resulting in a probability $\frac{12}{2^{12}}=\frac{3}{1024}$
-that Eve correctly guessed the key. 
+In order to successfully impersonate Alice, Eve must deliver $Q$ to Bob
+such that when he reads the message $m^{\prime}$ and hash $h^{\prime}$,
+$h\left(m^{\prime}\right)=h^{\prime}$. Eve delivers the qubits $Q$ in a random order.
+Bob performs Z-basis measurement on the first $\frac{n}{2}$ qubits in pairs:
+$\frac{n}{4}$ for each of $m^{\prime}$ and $h^{\prime}$. If the qubits in a pair
+produce the same measurement then this pair is equivalent to a classical 0, and if they produce
+different measurements then this pair is equal to a classical 1. Because the qubits of $Q$
+are in an arbitrary order, there is a $\frac{1}{2}$ probability to read a 0
+and a $\frac{1}{2}$ chance to read a 1 for a given pair. There are $\frac{n}{8}$ classical
+bits in $h^{\prime}$, so Eve will be detected with probability $1 - \left(\frac{1}{2}\right)^{\frac{n}{8}}$.
+With $n=16$, this is equal to $1 - \left(\frac{1}{2}\right)^{2} = 1 - \frac{1}{4} = \frac{3}{4}$.
+The protocol is not very secure against this attack for $n=16$ (length of $m$ is 2),
+but it does converge to nearly 1 with larger values of $n$.
 
-In order to successfully impersonate Alice, Eve must deliver to Bob
-a message $m_{e}$ and a hash $h\left(m_{e}\right)_{e}$ such that
-$h\left(m_{e}\right)=h\left(m_{e}\right)_{e}$. Because $h\left(m_{e}\right)$
-is $2$ Bell pairs in length, and there is a $\frac{1}{2}$ probability
-that each Bell pair is comprised of two equal qubits and a $\frac{1}{2}$
-probability that each Bell pair is comprised of two unequal qubits
-(note: where the qubits came from isn't actually what is important).
-Thus, the total probability that $h\left(m_{e}\right)=h\left(m_{e}\right)_{e}$
-is $\left(\frac{1}{2}\right)^{\frac{n}{8}}=\frac{1}{4}$ and the probability
-that Eve is detected is $1-\frac{1}{4}=\frac{3}{4}$. This corresponds
-to the data collected via the simulation.
+\subsubsection{Impersonation of Bob Attack}
 
-\subsubsection{Impersonating Bob Attack}
+In order to successfully impersonate Bob, Eve must reflect $C_{b}^{\prime}$
+to Alice such that $C^{\prime}=C$. The reflected qubits are in an arbitrary order
+based on Eve's guessed keys, so they could be any $\frac{n}{4}$ of the $\frac{3n}{4}$
+qubits from $Q^{\prime}$.
+For each qubit in $C_a$, there is a chance it will be paired with its
+entangled counterpart in $C_b^{\prime\prime\prime}$. If this happens,
+then the qubit passes verification. If the qubit from $C_a$ is paired
+with any other qubit from $C_b^{\prime\prime\prime}$, then Bell measurement results in one of
+$\left\{ \ket{00}, \ket{01}, \ket{10}, \ket{11} \right\}$ with equal probability, so there is
+a $\frac{1}{4}$ chance that qubit will pass verification. If the probability of correctly matching
+each qubit in $C_a$ was independent from those of the other qubits, then it would be $\frac{4}{3n}$ for each,
+and the probability of detection would be $1 - \left( \frac{4}{3n} + \frac{3n - 4}{3n} \times \frac{1}{4} \right)^{\frac{n}{4}}$.
+Unfortunately the probability of matching each qubit correctly is dependent on those of matching the others,
+so the exact probability of detection is very difficult to calculate. The above formula for detection
+acts as an upper bound and rough estimate, but that is not helpful for a security analysis, and the lower bound has yet to be solved.
 
-In order to successfully impersonate Bob, Eve must deliver to Alice
-a $C_{b_{e}}$ such that $C_{b_{e}a}=C_{ba}$. Because either value
-is comprised of $4$ qubits (half of each in $C_{b_{e}}$ and half
-of each in $C_{a}$, and because the corresponding Bell pairs each
-have a $\frac{1}{4}$ probability of turning out correctly. Therefore,
-the probability that $C_{b_{e}a}=C_{ba}$ is $ $
+Luo and Hwang claim that the probability of detecting this attack is $1 - \left( \frac{5}{8} \right)^{\frac{n}{2}}$,
+but it is unclear how they calculated this result. Using this formula and $n=16$, we obtain a probability
+of $1 - \left( \frac{5}{8} \right)^{8} \approx 0.9767$.
 
-\subsubsection{Intercept and Resend Attack}
+\subsubsection{Intercept-and-Resend Attack}
+
+Our definition of an intercept-and-resend attack involves independently impersonating
+Bob and Alice. Let $D_{IB}$ and $D_{IA}$ be the events that Eve is detected while impersonating
+Bob and Alice, respectively. The probability $P(D_{IB} \cup P(D_{IA})$ of Eve
+being detected while impersonating at least one of Bob or Alice is equal to
+$P(D_{IB}) + P(D_{IA}) - P(D_{IB} \times P(D_{IA})$, since the events $D_{IB}$ and $D_{IA}$ are independent.
+We know that $P(D_{IA}) = 1 - \left(\frac{1}{2}\right)^{\frac{n}{8}}$, but we were unable to calculate $P(D_{IB}$.
+
+If we use Luo and Hwang's formula $P(D_{IB} = 1 - \left( \frac{5}{8} \right)^{\frac{n}{2}}$, then we can calculate the
+probability of this attack. Using this formula and $n=16$, we have
+\begin{align*}
+        & P(D_{IB}) + P(D_{IA}) - P(D_{IB} \times P(D_{IA}) \\
+    \approx\, & 0.9767 + 0.75 - 0.9767 \times 0.75 \\
+    \approx\, & 0.9941 \\
+\end{align*}
 
 \subsubsection{1-Qubit Modification Attack}
 
-In this case, Eve cannot successfully modify a single qubit without
-being detected because either she will modify a single qubit in $m$
-(in which case $h\left(m_{e}\right)\neq h\left(m_{e}\right)_{e}$),
-or she will modify a single qubit in $h\left(m\right)$ (in which
-case, again, $h\left(m_{e}\right)\neq h\left(m\right)$), or else
-she will modify a single qubit in $C_{b}$ (in which case, 
+Eve modifies a qubit by applying an X gate to it,
+swapping the probability amplitudes of the $\ket{0}$ and $\ket{1}$ components.
+Eve cannot successfully perform a 1-qubit modification
+attack without being detected. There are three possible cases:
+\begin{enumerate}
+    \item Eve flips the value of a single qubit belonging to $m$, and is detected by Bob because
+    the pair containing that qubit will have its measured value flipped, so
+    $h\left(m_{e}^{\prime}\right)\neq h_{e}^{\prime}$
+    \item Eve flips the value of a single qubit belonging to $h$, and is detected by Bob because
+    $h\left(m_{e}^{\prime}\right)\neq h_{e}^{\prime}$
+    \item Eve flips the value of a single qubit belonging to $C_{b}$, and is detected by Alice because
+    the Bell-EPR pair containing the flipped qubit will either change from a
+    $\ket{\Phi^+}$ to a $\ket{\Psi^+}$, or from a $\ket{\Psi^-}$ to a $\ket{\Phi^-}$, so $C^{\prime} \neq C$.
+\end{enumerate}
+
+Each of $m_e$, $h_e$, and $C_b$ contain $\frac{n}{4}$ qubits, so when Eve modifies a qubit in $Q$,
+which is shuffled by Bob upon reception, there is a $\frac{1}{3}$ probability of each of the three
+scenarios. Therefore, there is a $\frac{2}{3}$ probability that Eve will be detected by Bob, and a
+$\frac{1}{3}$ probability that Eve will be detected by Alice. There is a probability of 1 that Eve
+is detected by one of either Alice or Bob.
 
 \section{Evaluation}
 
-The measured results do support the claims of the randomized-ASQDC
-protocol. The implementation tested in the current work behaved as
-expected in the face of five attacker cases: no attacker, impersonation
-of Alice, impersonation of Bob, intercept-and-resend attack, and 1-qubit
-modification attack. 
+We ran our simulation 10,000 times without an attack, and another 10,000 times for
+each of the four attacks we defined. We used $n=16$ for all simulations.
+Due to long processing times, we were not able to perform enough simulations to provide complete
+confidence in our analysis from section \ref{sect:securityAnalysis} but as seen in
+Fig. \ref{fig:resultsGraph}, the results indicate that the protocol is roughly as secure
+as predicted against each of the attacks. In Fig. \ref{fig:resultsGraph}, the expected number
+of detections by Alice in the "Impersonate Bob" and "Intercept-and-resend" attacks are calculated
+using Luo and Hwang's formula.
+
+An alternative simulation of the protocol may also be possible that dramatically reduces computation time.
+In our simulation, we calculate and store the tensor product of all $n$ qubits and operating on those states
+using $n \times n$ gates. Since this is a classical simulation, storing these massive quantum states involves
+calculating and storing a vector of length $2^n$. Fortunately, the $n$ qubits are not all entangled in one
+inseparable state, but rather into $n/2$ Bell-EPR pairs. The $n \times n$ gates serve only to reorder those qubits.
+It should be possible to create a simulation that logically reorders the qubits without representing
+them all in the same quantum register, which would make the protocol spend exponentially less time and energy.
+
+Reducing the computation time would allow us to run far more tests with far larger values of $n$, and get
+more accurate results.
 
 \pgfplotstableread[row sep=\\,col sep=&]{
     outcome                                 & Expected & Result \\
     No Attacker: Success                    &    10000 &  10000 \\
     Impersonate Alice: Detected             &     7500 &   7464 \\
-    Impersonate Bob: Detected               &     9961 &   9891 \\
+    Impersonate Bob: Detected               &     9767 &   9891 \\
     Intercept-and-resend: Detected by Bob   &     7500 &   7441 \\
-    Intercept-and-resend: Detected by Alice &     9961 &   9954 \\
-    Intercept-and-resend: Detected          &     9990 &   9985 \\
+    Intercept-and-resend: Detected by Alice &     9767 &   9954 \\
+    Intercept-and-resend: Detected          &     9941 &   9985 \\
     1-Qubit Modification: Detected by Bob   &     6667 &   6678 \\
     1-Qubit Modification: Detected by Alice &     3333 &   3322 \\
     1-Qubit Modification: Detected          &    10000 &  10000 \\
@@ -387,25 +437,29 @@ modification attack.
 
 \section{Conclusion}
 
-In summary, the current work tested a Matlab with QIT implementation
-of the randomization-based ASQDC protocol in five sets of circumstances:
-no attacker, impersonation of Alice, impersonation of Bob, intercept-and-resend
+We have implemented in Matlab and QIT a working simulation of the
+randomization-based ASQDC protocol
+described in this document, based on the proposal by Luo and Hwang.
+The protocol was executed 10,000 times with no attacker, and 10,000 times under
+each of 4 attack simulations: impersonation of Alice, impersonation of Bob, intercept-and-resend
 attack, and 1-qubit modification attack. The measured results were
-then compared against the theoretical values, supporting the claims
-of the ASQDC protocol authors.
+then compared against the theoretical values, roughly supporting the claims
+in our own security analysis, alongside that of Luo and Hwang.
+We confirmed that the protocol is in fact secure against several of these
+attacks, even with the number of qubits as low as $n=16$, while it is expected to be
+secure against impersonation of Alice with a large value of $n$.
 
-This is relevant to quantum communications research as such a protocol
-may be more feasible than fully-quantum protocols in a variety of
-circumstances in the short-to-medium term. Furthermore, it was shown
-that the protocol is, in fact, secure against four major categories
-of attack.
+This is relevant to quantum communications research as semi-quantum protocols
+are more practical than fully-quantum protocols in many
+circumstances while the cost and mobility of quantum computers remains high.
 
 Future work would include testing the protocol against additional
-attacks, such as n-qubit modification attacks. It would also be of
-benefit to test the protocol on computers which are capable of handling
-larger values of $n$ (longer messages) in order to demonstrate empirically
-that the security does in fact scale with message length as predicted
-by theory.
+attacks, such as n-qubit modification attacks. It would also be beneficial
+to implement a simulation of the protocol which does not generate large quantum registers
+containing $n$ qubits, but rather works with the Bell-EPR pairs individually.
+This would allow the execution of more simulations with larger values of $n$ (longer messages)
+in order to demonstrate with higher confidence that the detection probability for each attack
+matches the calculated theoretical values.
 
 \begin{thebibliography}{00}
 \bibitem{LuoHwang} Y.-P. Luo, T. Hwang, ``Authenticated semi-quantum direct communication protocols using Bell states,'' Quantum Information Processing, vol. 15, no. 2, pp. 957--958, 2015.
