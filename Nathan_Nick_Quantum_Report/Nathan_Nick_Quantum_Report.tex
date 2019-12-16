@@ -185,7 +185,7 @@ the first qubit from each pair is ordered in sequence $C_{a}$ preceded by the se
 qubit from each pair.
 
 Alice shuffles the qubits in the tensor product of $S$ and $C_{b}$,
-based on $K_{1}$ which is a {\LARGE\color{red}Lehmer code} that represents a random permutation of $\frac{3n}{4}$ elements.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CITE!!!!!!!!!!!!!!!!!!!!!!!
+based on $K_{1}$ which is a Lehmer code that represents a random permutation of $\frac{3n}{4}$ elements \cite{Rauschmayer}.
 We call the resulting shuffled sequence $Q$. $Q$ is sent to Bob, while Alice retains $C_{a}$,
 which will be used later to verify that Bob successfully received the message. In out QIT implementation,
 $C_{a}$ appears to be included in $Q$, but this is only because we were unaware of a way to separate the states
@@ -464,6 +464,7 @@ matches the calculated theoretical values.
 \begin{thebibliography}{00}
 \bibitem{LuoHwang} Y.-P. Luo, T. Hwang, ``Authenticated semi-quantum direct communication protocols using Bell states,'' Quantum Information Processing, vol. 15, no. 2, pp. 957--958, 2015.
 \bibitem{YuEtAl} K. Yu, C.-W. Yang, C.-H. Liao, T. Hwang, ``Authenticated semi-quantum key distribution protocol using Bell states,'' Quantum Information Processing, vol. 13, no. 6, pp. 1457--1565, 2014.
+\bibitem{Rauschmayer} A. Rauschmayer, ``Encoding permutations as integers via the Lehmer code (JavaScript),'' Mar. 3, 2013. Accessed on Dec. 15, 2019. [Online]. Available: https://2ality.com/2013/03/permutations.html
 \end{thebibliography}
 \vspace{12pt}
 
